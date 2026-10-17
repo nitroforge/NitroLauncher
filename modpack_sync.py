@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 API_BASE = "https://api.github.com"
 RAW_BASE = "https://raw.githubusercontent.com"
-DEFAULT_REPO = "mkwiichannel/Nitropack"
+DEFAULT_REPO = "nitroforge/Nitropack"
 DEFAULT_BRANCH = "main"
 
 PROTECTED_PREFIXES = ("riivolution/save/", "riivolution/config/", "mariokartnitro_test/my stuff/")
@@ -146,20 +146,33 @@ def _parse_lfs_pointer(data):
 
 def resolve_lfs(repo, branch, files):
     """files: {rel: [git_sha, size]} -> same dict, with every Git LFS pointer
-    replaced by ["lfs:<sha256>", real_size]. Only tiny files are looked at."""
+    replaced by ["lfs:<sha256>", real_size]. Only tiny files are looked at;
+    they are read in parallel and retried once so one hiccup can't leave a
+    large file unresolved."""
     out = dict(files)
-    for rel, (sha, size) in files.items():
-        if sha.startswith(LFS_PREFIX) or not (100 <= size <= 200):
-            continue
+    small = [rel for rel, (sha, size) in files.items()
+             if not sha.startswith(LFS_PREFIX) and 100 <= size <= 200]
+    if not small:
+        return out
+
+    def look(rel):
         url = f"{RAW_BASE}/{repo}/{urllib.parse.quote(branch)}/{urllib.parse.quote(rel)}"
-        try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20) as r:
-                data = r.read(512)
-        except (urllib.error.URLError, OSError):
-            continue
-        ptr = _parse_lfs_pointer(data)
-        if ptr:
-            out[rel] = [LFS_PREFIX + ptr[0], ptr[1]]
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20) as r:
+                    return rel, _parse_lfs_pointer(r.read(512))
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    return rel, None
+            except (urllib.error.URLError, OSError):
+                pass
+            time.sleep(0.5 * (attempt + 1))
+        return rel, None
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        for rel, ptr in pool.map(look, small):
+            if ptr:
+                out[rel] = [LFS_PREFIX + ptr[0], ptr[1]]
     return out
 
 
@@ -193,7 +206,7 @@ def git_blob_sha_progress(path, on_bytes):
     return h.hexdigest()
 
 
-def make_plan(dest, remote_files, state, workers=2, progress_cb=None):
+def make_plan(dest, remote_files, state, workers=None, progress_cb=None):
     """Compare Dolphin's folder with the repo listing.
 
     Missing files and wrong sizes are found with plain stat() calls.
@@ -232,6 +245,8 @@ def make_plan(dest, remote_files, state, workers=2, progress_cb=None):
             else:
                 to_hash.append(rel)
 
+    if not workers:
+        workers = max(2, min(4, (os.cpu_count() or 2) // 2))
     total = sum(remote_files[r][1] for r in to_hash)
     lock = threading.Lock()
     done = [0]
@@ -282,16 +297,21 @@ def _free_space(path):
 
 def _download_one(repo, branch, dest, rel, sha, size, add_bytes, stop):
     is_lfs = sha.startswith(LFS_PREFIX)
-    base = MEDIA_BASE if is_lfs else RAW_BASE
-    url = f"{base}/{repo}/{urllib.parse.quote(branch)}/{urllib.parse.quote(rel)}"
+    q = f"{urllib.parse.quote(branch)}/{urllib.parse.quote(rel)}"
+    # Several addresses serve the same file; if GitHub answers 404/403/5xx on
+    # one of them, the next is tried before giving up.
+    urls = ([f"{MEDIA_BASE}/{repo}/{q}", f"https://github.com/{repo}/raw/{q}", f"{RAW_BASE}/{repo}/{q}"]
+            if is_lfs else
+            [f"{RAW_BASE}/{repo}/{q}", f"https://github.com/{repo}/raw/{q}"])
     final = _local_path(dest, rel)
     os.makedirs(os.path.dirname(final), exist_ok=True)
     part = final + ".nitro-part"
     last_err = None
-    for attempt in range(4):
+    for attempt in range(6):
         if stop.is_set():
             raise SyncError("cancelled")
         got = 0
+        url = urls[attempt % len(urls)]
         try:
             h = hashlib.sha256() if is_lfs else hashlib.sha1()
             if not is_lfs:
@@ -328,8 +348,11 @@ def _download_one(repo, branch, dest, rel, sha, size, add_bytes, stop):
                 os.remove(part)
             except OSError:
                 pass
-            time.sleep(1.5 * (attempt + 1))
-    raise SyncError(f"Download failed for {rel}: {last_err}")
+            time.sleep(min(1.5 * (attempt + 1), 6))
+    hint = ""
+    if isinstance(last_err, urllib.error.HTTPError) and last_err.code in (403, 404, 429):
+        hint = " GitHub is not serving this file right now (large-file download limit?). Try again in a while."
+    raise SyncError(f"Download failed for {rel}: {last_err}.{hint}")
 
 
 def run_sync(repo, branch, dest, remote, plan, state, state_path,
