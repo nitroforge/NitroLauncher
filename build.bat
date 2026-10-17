@@ -16,7 +16,7 @@ if exist __pycache__ rmdir /s /q __pycache__
 echo Building standalone EXE with the Windows Common Controls manifest...
 python -m PyInstaller --noconfirm --clean --onefile --windowed --noupx ^
   --name "MarioKartNitro" ^
-  --paths "." --hidden-import modpack_sync ^
+  --paths "." --hidden-import modpack_sync --hidden-import launch_validation ^
   --icon "build_assets\icon.ico" ^
   --manifest "MarioKartNitro.manifest" ^
   --version-file "version_info.txt" ^
