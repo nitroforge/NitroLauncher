@@ -595,18 +595,18 @@
 <div class="set-group">
 <h3 class="set-title" id="groupGame">Game</h3>
 <div class="field"><label id="labelResolution">Resolution</label> <select id="settingsResolution">
-<option value="640x528">640x528</option>
-<option value="1280x1056">1280x1056</option>
-<option value="1920x1584" selected>1920x1584</option>
-<option value="2560x2112">2560x2112</option>
-<option value="3200x2640">3200x2640</option>
-<option value="3840x3168">3840x3168</option>
-<option value="4480x3696">4480x3696</option>
-<option value="5120x4224">5120x4224</option>
-<option value="5760x4752">5760x4752</option>
-<option value="6400x5280">6400x5280</option>
-<option value="7040x5808">7040x5808</option>
-<option value="7680x6336">7680x6336</option>
+<option value="640x528">Native (640x528)</option>
+<option value="1280x1056">2x Native (1280x1056) for 720p</option>
+<option value="1920x1584" selected>3x Native (1920x1584) for 1080p</option>
+<option value="2560x2112">4x Native (2560x2112) for 1440p</option>
+<option value="3200x2640">5x Native (3200x2640)</option>
+<option value="3840x3168">6x Native (3840x3168) for 4K</option>
+<option value="4480x3696">7x Native (4480x3696)</option>
+<option value="5120x4224">8x Native (5120x4224) for 5K</option>
+<option value="5760x4752">9x Native (5760x4752)</option>
+<option value="6400x5280">10x Native (6400x5280)</option>
+<option value="7040x5808">11x Native (7040x5808)</option>
+<option value="7680x6336">12x Native (7680x6336)</option>
 </select></div>
 <div class="field"><label id="labelMyStuffMode">My Stuff in Dolphin</label>
 <div class="seg" id="settingsMyStuffMode" role="group" data-value="on">
@@ -3077,6 +3077,29 @@ function toast(msg, isError, sticky) {
     document.documentElement.setAttribute('lang', langCode);
     document.documentElement.setAttribute('dir', langCode === 'ar' ? 'rtl' : 'ltr');
     window._currentLang = langCode;
+    labelResolutions(langCode);
+  }
+
+  // Resolution list in Dolphin's style ("3x Native (1920x1584) for 1080p"),
+  // in the chosen language. The values behind the options never change.
+  const RES_WORDS = {
+    en:['Native','for {p}'], de:['Nativ','für {p}'], fr:['Natif','pour {p}'], es:['Nativa','para {p}'],
+    it:['Nativa','per {p}'], pt:['Nativa','para {p}'], nl:['Native','voor {p}'], pl:['Natywna','dla {p}'],
+    tr:['Yerel','{p} için'], ru:['Родное','для {p}'], ja:['ネイティブ','{p}向け'], ko:['네이티브','{p}용'],
+    zh:['原生','适用于 {p}'], ar:['الأصلية','لـ {p}'], sv:['Inbyggd','för {p}'], fi:['Natiivi','{p}:lle']
+  };
+  const RES_P = { 2:'720p', 3:'1080p', 4:'1440p', 6:'4K', 8:'5K' };
+  function labelResolutions(langCode){
+    const sel = document.getElementById('settingsResolution');
+    if(!sel) return;
+    const [native, forTpl] = RES_WORDS[langCode] || RES_WORDS.en;
+    Array.from(sel.options).forEach(o => {
+      const m = /^(\d+)x(\d+)$/.exec(o.value);
+      if(!m) return;
+      const n = Math.round(+m[1] / 640);
+      const p = RES_P[n] ? ' ' + forTpl.replace('{p}', RES_P[n]) : '';
+      o.textContent = (n === 1 ? native : n + 'x ' + native) + ' (' + o.value + ')' + p;
+    });
   }
 
   let currentState = null;

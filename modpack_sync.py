@@ -30,16 +30,17 @@ class SyncError(Exception):
     pass
 
 
-NEVER_INSTALL_PREFIXES = ("riivolution/save/",)
-
-
 def _never_install(rel):
-    return rel.lower().startswith(NEVER_INSTALL_PREFIXES)
+    """Never distribute player saves, including nested/legacy pack layouts."""
+    parts = rel.replace("\\", "/").lower().split("/")
+    return (parts[-1] == "rksys.dat" or
+            any(a == "riivolution" and b == "save"
+                for a, b in zip(parts, parts[1:])))
 
 
 def _protected(rel):
     low = rel.lower()
-    return low.startswith(PROTECTED_PREFIXES) or low.startswith("mariokartnitro_test/mystuff/")
+    return _never_install(rel) or low.startswith(PROTECTED_PREFIXES) or low.startswith("mariokartnitro_test/mystuff/")
 
 
 def _lower_thread_priority():
@@ -98,7 +99,7 @@ def fetch_remote(repo, branch, state, timeout=20):
     except urllib.error.HTTPError as e:
         if e.code == 304 and same and state.get("remote"):
             return {"tree_sha": state.get("tree_sha", ""), "files": state["remote"],
-                    "etag": state.get("etag", "")}
+                    "etag": state.get("etag", ""), "cached": True}
         if e.code in (403, 429):
             raise SyncError("GitHub is rate-limiting this connection right now. "
                             "Try again in a few minutes.")
@@ -246,7 +247,7 @@ def make_plan(dest, remote_files, state, workers=None, progress_cb=None):
                 to_hash.append(rel)
 
     if not workers:
-        workers = max(2, min(4, (os.cpu_count() or 2) // 2))
+        workers = max(2, min(4, os.cpu_count() or 2))
     total = sum(remote_files[r][1] for r in to_hash)
     lock = threading.Lock()
     done = [0]
@@ -274,7 +275,8 @@ def make_plan(dest, remote_files, state, workers=None, progress_cb=None):
         return rel, None
 
     ok = dict(trusted)
-    with ThreadPoolExecutor(max_workers=workers, initializer=_lower_thread_priority) as pool:
+    # The player is waiting on this check, so it runs at normal priority.
+    with ThreadPoolExecutor(max_workers=workers) as pool:
         for rel, entry in pool.map(check, to_hash):
             if entry:
                 ok[rel] = entry
@@ -283,7 +285,8 @@ def make_plan(dest, remote_files, state, workers=None, progress_cb=None):
     if progress_cb:
         progress_cb(total, total)
     delete = [r for r in prev if r not in remote_files and not _protected(r)]
-    return {"download": download, "delete": delete, "ok": ok}
+    return {"download": download, "delete": delete, "ok": ok,
+            "stats": {"trusted": len(trusted), "hashed": len(to_hash), "hashed_bytes": total}}
 
 
 def _free_space(path):
@@ -319,7 +322,7 @@ def _download_one(repo, branch, dest, rel, sha, size, add_bytes, stop):
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r, \
                     open(part, "wb") as f:
                 while True:
-                    chunk = r.read(256 * 1024)
+                    chunk = r.read(1 << 20)
                     if not chunk:
                         break
                     f.write(chunk)
@@ -356,10 +359,12 @@ def _download_one(repo, branch, dest, rel, sha, size, add_bytes, stop):
 
 
 def run_sync(repo, branch, dest, remote, plan, state, state_path,
-             progress_cb=None, workers=4):
+             progress_cb=None, workers=8):
     """Execute a plan from make_plan(). Raises SyncError on failure
     (everything finished so far stays valid and is remembered)."""
-    todo = plan["download"]
+    # Biggest files first, so a huge file never starts last and holds up the end.
+    todo = sorted((item for item in plan["download"] if not _never_install(item[0])),
+                  key=lambda t: -t[2])
     total = sum(s for _, _, s in todo)
     if todo:
         need = int(total * 1.02) + 64 * 1024 * 1024
@@ -386,7 +391,8 @@ def run_sync(repo, branch, dest, remote, plan, state, state_path,
     error = None
     try:
         if todo:
-            with ThreadPoolExecutor(max_workers=workers, initializer=_lower_thread_priority) as pool:
+            # Normal priority: the player is waiting on the download.
+            with ThreadPoolExecutor(max_workers=workers) as pool:
                 futures = [pool.submit(_download_one, repo, branch, dest, rel, sha, size,
                                        add_bytes, stop) for rel, sha, size in todo]
                 for fut in futures:
@@ -405,6 +411,8 @@ def run_sync(repo, branch, dest, remote, plan, state, state_path,
                 progress_cb(total if error is None else max(0, done_bytes[0]), total)
         if error is None:
             for rel in plan["delete"]:
+                if _protected(rel):
+                    continue
                 try:
                     os.remove(_local_path(dest, rel))
                 except OSError:

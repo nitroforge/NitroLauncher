@@ -26,7 +26,6 @@ import urllib.request
 import uuid
 import webbrowser
 import modpack_sync
-from launch_validation import prepare_launch
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -117,16 +116,41 @@ def detect_hardware():
                 info["ram_gb"] = round(ms.ullTotalPhys / (1024 ** 3), 1)
         except Exception:
             pass
+        # The graphics adapters are listed in the registry, which is read in
+        # milliseconds. PowerShell (slow to start) is only the fallback.
         try:
-            out = subprocess.run(
-                ["powershell", "-NoProfile", "-NonInteractive", "-Command",
-                 "(Get-CimInstance Win32_VideoController).Name"],
-                capture_output=True, text=True, timeout=10,
-                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
-            ).stdout
-            info["gpus"] = [ln.strip() for ln in out.splitlines() if ln.strip()]
+            import winreg
+            gpus = []
+            base = r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, base) as root:
+                for i in range(64):
+                    try:
+                        sub = winreg.EnumKey(root, i)
+                    except OSError:
+                        break
+                    if not sub.isdigit():
+                        continue
+                    try:
+                        with winreg.OpenKey(root, sub) as k:
+                            desc = str(winreg.QueryValueEx(k, "DriverDesc")[0]).strip()
+                    except OSError:
+                        continue
+                    if desc and desc not in gpus:
+                        gpus.append(desc)
+            info["gpus"] = gpus
         except Exception:
             pass
+        if not info["gpus"]:
+            try:
+                out = subprocess.run(
+                    ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+                     "(Get-CimInstance Win32_VideoController).Name"],
+                    capture_output=True, text=True, timeout=10,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                ).stdout
+                info["gpus"] = [ln.strip() for ln in out.splitlines() if ln.strip()]
+            except Exception:
+                pass
     names = " ".join(info["gpus"]).lower()
     if re.search(r"geforce|rtx|gtx|quadro|radeon rx|radeon pro|arc a\d|arc b\d", names):
         info["gpu_class"] = "discrete"
@@ -134,6 +158,47 @@ def detect_hardware():
         info["gpu_class"] = "integrated"
     _HW_CACHE.update(info)
     return _HW_CACHE
+
+
+_LAUNCH_T0 = [0.0]
+
+
+def _launch_log(msg):
+    """Step-by-step record of the last Play in AppData\\MarioKartNitro\\launch.log,
+    so a slow start can be traced. Never raises."""
+    try:
+        path = os.path.join(app_data_dir(), "launch.log")
+        if msg == "start":
+            _LAUNCH_T0[0] = time.time()
+            mode, line = "w", time.strftime("%Y-%m-%d %H:%M:%S") + "  Play pressed"
+        else:
+            mode, line = "a", "+%.1fs  %s" % (time.time() - _LAUNCH_T0[0], msg)
+        with open(path, mode, encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception:
+        pass
+
+
+def _folder_smaller_than(path, limit_bytes, max_seconds=1.5):
+    """True when the folder holds less than limit_bytes. Stops counting as soon as
+    the answer is known (or after max_seconds, which counts as "not smaller"),
+    so a huge texture folder is not walked file by file on every Play."""
+    total = 0
+    deadline = time.time() + max_seconds
+    stack = [path]
+    try:
+        while stack:
+            with os.scandir(stack.pop()) as it:
+                for entry in it:
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                    else:
+                        total += entry.stat().st_size
+                    if total >= limit_bytes or time.time() > deadline:
+                        return False
+    except OSError:
+        return total < limit_bytes
+    return True
 
 
 def load_config() -> dict:
@@ -960,14 +1025,16 @@ class Api:
         exe_name = os.path.basename(dolphin_path)
         try:
             if sys.platform == "win32":
-                subprocess.run(
+                res = subprocess.run(
                     ["taskkill", "/F", "/IM", exe_name],
                     capture_output=True, timeout=5,
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
                 )
             else:
                 proc_name = os.path.splitext(exe_name)[0]
-                subprocess.run(["pkill", "-f", proc_name], capture_output=True, timeout=5)
-            time.sleep(0.5)  # give the OS a moment to actually release the process
+                res = subprocess.run(["pkill", "-f", proc_name], capture_output=True, timeout=5)
+            if res.returncode == 0:
+                time.sleep(0.5)  # a Dolphin was closed: give the OS a moment to release it
         except (OSError, subprocess.SubprocessError):
             pass  # non-critical — proceed with launch either way
 
@@ -988,7 +1055,14 @@ class Api:
                 os.rmdir(dest_dir)
             except OSError as e:
                 raise OSError(f"couldn't clear stale empty folder at {dest_dir}: {e}")
-        shutil.copytree(src_dir, dest_dir, dirs_exist_ok=True)
+        def _skip_saves(folder, names):
+            # A player's save data (riivolution/save/...) is never copied from a
+            # content folder: the game creates it, and it must stay theirs.
+            if os.path.basename(os.path.normpath(folder)).lower() == "riivolution":
+                return [n for n in names if n.lower() == "save"]
+            return [n for n in names if n.lower() == "rksys.dat"]
+
+        shutil.copytree(src_dir, dest_dir, dirs_exist_ok=True, ignore=_skip_saves)
 
     def launch_game(self):
         cfg = load_config()
@@ -1000,30 +1074,124 @@ class Api:
         if not iso_path or not os.path.isfile(iso_path):
             return {"ok": False, "error": "MKW ISO path isn't set (or the file doesn't exist). Set it in Settings first."}
 
-        active_name = cfg.get("active_mod", "")
-        mod_entry = next((m for m in cfg.get("mods", []) if m.get("name") == active_name), None)
-        user_dir = self._dolphin_user_dir(dolphin_path)
-        try:
-            launch_target = prepare_launch(
-                mod_entry, iso_path, user_dir, os.path.join(app_data_dir(), "presets"),
-                write_riivolution_preset, cfg.get("mystuff_mode") or "on",
-            )
-        except (OSError, ValueError, ET.ParseError) as e:
-            return {"ok": False, "error": "Nitro was not launched. " + str(e) +
-                    " Run the pack update/repair, check the selected mod profile, then try Play again."}
-
-        # Only touch the running game/NAND after the mod passed preflight.
+        _launch_log("starting launch")
         self._kill_dolphin(dolphin_path)
-        self._reset_dolphin_file_logging(user_dir)
+        _launch_log("old Dolphin closed")
+        self._reset_dolphin_file_logging(self._dolphin_user_dir(dolphin_path))
+
+        # Player's own custom files (skins, music...) -> the pack's "My Stuff" folder.
         try:
-            self._sync_my_stuff(cfg, user_dir)
-            self._apply_my_stuff_option(cfg, user_dir)
+            self._sync_my_stuff(cfg, self._dolphin_user_dir(dolphin_path))
+            self._apply_my_stuff_option(cfg, self._dolphin_user_dir(dolphin_path))
         except Exception:
-            pass  # Optional custom files must not block a valid base pack.
+            pass  # never block Play over custom files
+
+        # Flush Nitro-created/edited Miis into the same Dolphin user folder
+        # passed to Dolphin via -u, before the game starts reading its NAND.
+        _launch_log("My Stuff done")
         mii_sync = self._sync_miis_to_dolphin()
+        _launch_log("Miis done")
         if not mii_sync.get("ok"):
             return {"ok": False, "error": "Mii sync failed; Dolphin was not launched. " + mii_sync.get("error", "Unknown Mii sync error.")}
 
+        active_name = cfg.get("active_mod", "")
+        mod_entry = next((m for m in cfg["mods"] if m["name"] == active_name), None)
+        launch_target = iso_path
+        note = ""
+        user_dir = self._dolphin_user_dir(dolphin_path)
+
+        if mod_entry and mod_entry.get("xml_path") and os.path.exists(mod_entry["xml_path"]):
+            xml_path = mod_entry["xml_path"]
+            content_root = mod_entry.get("content_root", "")
+
+            if content_root and os.path.isdir(content_root):
+                # Link every subfolder from your content folder directly
+                # into Dolphin's OWN Load/Riivolution folder — this is
+                # what actually matches your proven manual test (files
+                # physically present there) and how WheelWizard does it
+                # too. Uses a junction so nothing gets copied — instant,
+                # regardless of how large the mod content is.
+                try:
+                    riivolution_root = os.path.join(user_dir, "Load", "Riivolution")
+                    os.makedirs(riivolution_root, exist_ok=True)
+                    linked = []
+                    # Modpack synced straight into Dolphin's folder (the
+                    # normal case now): nothing to copy, it's already there.
+                    same_root = os.path.normcase(os.path.abspath(content_root)) == \
+                        os.path.normcase(os.path.abspath(riivolution_root))
+                    for entry in os.listdir(content_root):
+                        src = os.path.join(content_root, entry)
+                        if not os.path.isdir(src):
+                            continue  # skip stray files like the placeholder .txt
+                        if same_root:
+                            linked.append(entry)
+                            continue
+                        dest = os.path.join(riivolution_root, entry)
+                        self._link_or_copy_into(src, dest)
+                        linked.append(entry)
+
+                    existing_xmls = []
+                    if not (same_root and os.path.isfile(xml_path)):
+                        # (skipped for the synced pack: walking every pack file
+                        # just to find an xml we already have is wasted time)
+                        for dirpath, _dirnames, filenames in os.walk(riivolution_root):
+                            for fname in filenames:
+                                if fname.lower().endswith(".xml"):
+                                    existing_xmls.append(os.path.join(dirpath, fname))
+                    if same_root and os.path.isfile(xml_path):
+                        pass  # the synced profile is already the one to use
+                    elif existing_xmls:
+                        xml_path = existing_xmls[0]
+                    else:
+                        riivolution_xml_dir = os.path.join(riivolution_root, "riivolution")
+                        os.makedirs(riivolution_xml_dir, exist_ok=True)
+                        staged_xml = os.path.join(riivolution_xml_dir, os.path.basename(xml_path))
+                        shutil.copy2(xml_path, staged_xml)
+                        xml_path = staged_xml
+
+                    asset_folders = [f for f in linked if f != "riivolution"]
+                    assets_found = len(asset_folders) > 0
+                    if not assets_found:
+                        note = " ⚠ No asset folders found alongside riivolution — mod may not apply correctly."
+                except OSError:
+                    riivolution_root = None
+                    note = " ⚠ Couldn't link the content folder into Dolphin's folder."
+            else:
+                # No content_root set yet: fall back to staging just
+                # the xml into Dolphin's own folder. This only works
+                # fully if the mod has no external asset folders, or
+                # if you've placed them there yourself already.
+                try:
+                    riivolution_root = os.path.join(user_dir, "Load", "Riivolution")
+                    riivolution_xml_dir = os.path.join(riivolution_root, "riivolution")
+                    os.makedirs(riivolution_xml_dir, exist_ok=True)
+                    staged_xml = os.path.join(riivolution_xml_dir, os.path.basename(xml_path))
+                    shutil.copy2(xml_path, staged_xml)
+                    xml_path = staged_xml
+                    note = " ⚠ The modpack files aren't installed yet, so the mod may not apply."
+                except OSError:
+                    riivolution_root = None
+                    note = " ⚠ Couldn't stage the mod profile."
+
+            if riivolution_root:
+                try:
+                    presets_dir = os.path.join(app_data_dir(), "presets")
+                    os.makedirs(presets_dir, exist_ok=True)
+                    preset_path = os.path.join(presets_dir, f"{active_name}.json")
+                    write_riivolution_preset(
+                        iso_path=iso_path,
+                        xml_path=xml_path,
+                        riivolution_root=riivolution_root,
+                        display_name=f"Mario Kart Wii — {active_name}",
+                        out_path=preset_path,
+                        my_stuff_mode=cfg.get("mystuff_mode") or "on",
+                    )
+                    launch_target = preset_path
+                except (OSError, ET.ParseError):
+                    note = " ⚠ Couldn't build the mod preset, launching the plain ISO instead."
+                    launch_target = iso_path
+
+        _launch_log("mod profile ready")
         launch_args = [
             dolphin_path, "-e", launch_target, "-u", user_dir,
             "--config=Dolphin.Core.EnableCheats=False",
@@ -1045,14 +1213,8 @@ class Api:
                 "--config=Graphics.Settings.BackendMultithreading=True",
                 "--config=Graphics.Settings.CPUCull=True",
                 "--config=Graphics.Settings.ShaderCompilationMode=2",
-                # Build the shaders from Dolphin's cache before the race starts
-                # (Dolphin's guide advises this on weak CPUs): a slightly longer
-                # start, far less stutter on big tracks.
-                "--config=Graphics.Settings.WaitForShadersBeforeStarting=True",
-                # Only with a dedicated graphics card: built-in graphics is usually
-                # the limit already, and this would add to its load.
+                "--config=Graphics.Settings.WaitForShadersBeforeStarting=False",
                 "--config=Graphics.Settings.EnableGPUTextureDecoding=" + ("True" if hw_discrete else "False"),
-                "--config=Graphics.Hacks.ImmediateXFBEnable=True",
                 "--config=Graphics.Enhancements.MaxAnisotropy=0",
                 "--config=Graphics.Enhancements.PostProcessingShader=",
                 "--config=Graphics.Enhancements.ArbitraryMipmapDetection=False",
@@ -1065,7 +1227,6 @@ class Api:
                 "--config=Graphics.Hacks.DeferEFBCopies=True",
                 "--config=Graphics.Hacks.SkipDuplicateXFBs=True",
                 "--config=Graphics.Hacks.FastTextureSampling=True",
-                "--config=Graphics.Settings.SafeTextureCacheColorSamples=0",
                 "--config=Dolphin.Core.CPUThread=" + ("True" if hw["cpu_threads"] >= 3 else "False"),
                 "--config=Dolphin.Core.CPUCore=1",
                 "--config=Dolphin.Core.Fastmem=True",
@@ -1086,23 +1247,9 @@ class Api:
             # Preload the mod's hi-res textures into RAM so they are not read from
             # disk in the middle of a race (a common cause of stutter). Only when
             # they comfortably fit in memory.
-            tex_bytes = 0
-            try:
-                for root, _dirs, names in os.walk(os.path.join(user_dir, "Load", "Textures")):
-                    for n in names:
-                        tex_bytes += os.path.getsize(os.path.join(root, n))
-                    if tex_bytes > 3 * 1024 ** 3:
-                        break
-            except OSError:
-                pass
-            if hw["ram_gb"] and tex_bytes < min(1.5, hw["ram_gb"] * 0.2) * 1024 ** 3:
+            tex_limit = int(min(1.5, hw["ram_gb"] * 0.2) * 1024 ** 3) if hw["ram_gb"] else 0
+            if tex_limit and _folder_smaller_than(os.path.join(user_dir, "Load", "Textures"), tex_limit):
                 launch_args.append("--config=Graphics.Settings.CacheHiresTextures=True")
-        # Intel graphics run Dolphin best with Direct3D (11) rather than Vulkan
-        # (Dolphin's own performance guide advises against Vulkan on Intel).
-        # Only chosen for modern Intel chips.
-        if (cfg.get("performance_mode") and sys.platform == "win32" and not hw_discrete
-                and re.search(r"intel.*(uhd|iris|xe|arc)", " ".join(detect_hardware()["gpus"]).lower())):
-            launch_args.append("--config=Dolphin.Core.GFXBackend=D3D")
         # Resolution = Dolphin's internal resolution (a multiple of the Wii's
         # 640x528 picture). Performance mode drops to native 1x unless a
         # dedicated graphics card was found.
@@ -1118,11 +1265,13 @@ class Api:
                 launch_args.append(f"--config=Graphics.Settings.InternalResolution={scale}")
         try:
             flags = 0x00000080 if (sys.platform == "win32" and cfg.get("performance_mode")) else 0
+            _launch_log("starting Dolphin (everything before this is the launcher; after this it is Dolphin itself loading)")
             subprocess.Popen(launch_args, creationflags=flags)
+            _launch_log("Dolphin process started")
         except OSError as e:
             return {"ok": False, "error": f"Couldn't launch Dolphin: {e}"}
 
-        display_message = "Launching Mario Kart Nitro..."
+        display_message = "Launching..." + (note if note.strip().startswith("⚠") else "")
         return {"ok": True, "message": display_message}
 
 
@@ -1194,18 +1343,31 @@ class Api:
                     **launcher_info}
         dest = os.path.join(self._dolphin_user_dir(dolphin_path), "Load", "Riivolution")
         state = modpack_sync.load_state(MODPACK_STATE_PATH)
+        _launch_log("start")
+        _launch_log("pack folder: %s  (saved list: %d files, same folder: %s)" % (
+            dest, len(state.get("files") or {}),
+            state.get("dest") == os.path.normcase(os.path.abspath(dest))))
         try:
             remote = modpack_sync.fetch_remote(repo, branch, state)
-            remote["files"] = modpack_sync.resolve_lfs(repo, branch, remote["files"])
+            _launch_log("GitHub list: %d files" % len(remote["files"]))
+            if not remote.get("cached"):
+                # (an unchanged list from GitHub was already resolved last time)
+                remote["files"] = modpack_sync.resolve_lfs(repo, branch, remote["files"])
+            _launch_log("large-file info ready" + (" (reused)" if remote.get("cached") else ""))
             def _verify_progress(done, total):
                 _set_progress(status="verifying", downloaded_bytes=done, total_bytes=total or None)
             plan = modpack_sync.make_plan(dest, remote["files"], state, progress_cb=_verify_progress)
+            st = plan.get("stats", {})
+            _launch_log("files checked: %d already known, %d read (%d MB); to download: %d, to delete: %d" % (
+                st.get("trusted", 0), st.get("hashed", 0), st.get("hashed_bytes", 0) >> 20,
+                len(plan["download"]), len(plan["delete"])))
             _set_progress(status="idle", downloaded_bytes=0, total_bytes=None)
             if not plan["download"] and not plan["delete"]:
                 try:
                     modpack_sync.remember_verified(repo, branch, dest, remote, plan, state, MODPACK_STATE_PATH)
-                except OSError:
-                    pass
+                    _launch_log("saved the checked list")
+                except OSError as e:
+                    _launch_log("COULD NOT save the checked list: %s" % e)
                 # Files are all there and correct: make sure the Nitro Pack entry
                 # points at them (otherwise Play would start the plain game).
                 cfg2 = load_config()
@@ -1236,16 +1398,7 @@ class Api:
         Riivolution folder. Returns True when cfg was changed."""
         xml_candidates = sorted(p for p in remote["files"] if p.lower().endswith(".xml"))
         top_xml = [p for p in xml_candidates if p.lower().startswith("riivolution/") and p.count("/") == 1]
-        # Game-specific config/RMC*.xml files are not launchable patch profiles.
-        candidates = top_xml
-        current = next((m for m in cfg.get("mods", []) if m.get("name") == "Nitro Pack"), {})
-        selected = os.path.normcase(os.path.abspath(current.get("xml_path") or ""))
-        chosen = next((p for p in candidates
-                       if os.path.normcase(os.path.abspath(os.path.join(dest, *p.split("/")))) == selected), None)
-        if chosen is None:
-            if len(candidates) != 1:
-                raise modpack_sync.SyncError("The pack must contain one unambiguous top-level Riivolution profile. Select the intended profile before launching.")
-            chosen = candidates[0]
+        chosen = (top_xml or xml_candidates or [""])[0]
         changed = False
         for m in cfg["mods"]:
             if m.get("name") == "Nitro Pack":
