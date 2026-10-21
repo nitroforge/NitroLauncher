@@ -18,32 +18,34 @@
 </p>
 
 <p align="center">
-<b><a href="../../releases/latest">Download the launcher</a></b> &nbsp;|&nbsp; <b><a href="https://discord.gg/AhkHNPG65G">Get help on Discord</a></b>
+<a href="../../releases/latest"><img src="https://img.shields.io/badge/DOWNLOAD-LATEST%20RELEASE-f0561e?style=for-the-badge&labelColor=161b22" alt="Download the latest release" /></a>
+<a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/HELP-DISCORD-5865F2?style=for-the-badge&labelColor=161b22&logo=discord&logoColor=white" alt="Get help on Discord" /></a>
+<a href="https://github.com/nitroforge/Nitropack"><img src="https://img.shields.io/badge/MOD-NITROPACK-30363d?style=for-the-badge&labelColor=161b22" alt="Nitropack" /></a>
 </p>
 
 ## What it does
 
-- **Play in one click.** Sets the mod up inside Dolphin's `Load/Riivolution` folder and starts the game.
-- **Keeps the mod current.** Syncs from [Nitropack](https://github.com/nitroforge/Nitropack) and downloads only files that changed. Every file is checked, and failed downloads retry on their own.
-- **Updates itself.** New launcher versions come from this repo's releases and are checked before they replace the old exe.
-- **Mii editor.** Pick every part visually, with a live preview.
-- **Performance mode.** One switch that starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.
-- **My Stuff.** Drop your own files, like music, into a folder and the launcher adds them to the mod.
-- **16 languages.** Switch any time in Settings.
-- **Your saves stay yours.** The launcher never installs, replaces or deletes save data.
-
-## What you need
-
-- Windows 10 or 11
-- [Dolphin](https://dolphin-emu.org/) with Riivolution support
-- Your own Mario Kart Wii disc image (ISO or WBFS). This project does not provide one.
+<p align="center">
+<img src="assets/f1.png" alt="Play in one click" width="100%" /><br />
+<img src="assets/f2.png" alt="Always up to date" width="100%" /><br />
+<img src="assets/f3.png" alt="Updates itself" width="100%" /><br />
+<img src="assets/f4.png" alt="Mii editor" width="100%" /><br />
+<img src="assets/f5.png" alt="Performance mode" width="100%" /><br />
+<img src="assets/f6.png" alt="My Stuff" width="100%" /><br />
+<img src="assets/f7.png" alt="16 languages" width="100%" /><br />
+<img src="assets/f8.png" alt="Your saves stay yours" width="100%" />
+</p>
 
 ## Get started
 
-1. Download `MarioKartNitro.exe` from the [latest release](../../releases/latest).
-2. Run it and point it to `Dolphin.exe` and your game file.
-3. Let it download the mod the first time.
-4. Press **Play**.
+<p align="center">
+<img src="assets/s1.png" alt="Step 1: Download" width="100%" /><br />
+<img src="assets/s2.png" alt="Step 2: Set it up" width="100%" /><br />
+<img src="assets/s3.png" alt="Step 3: Sync the mod" width="100%" /><br />
+<img src="assets/s4.png" alt="Step 4: Press Play" width="100%" />
+</p>
+
+**You need:** Windows 10 or 11, [Dolphin](https://dolphin-emu.org/) with Riivolution support, and your own Mario Kart Wii disc image (ISO or WBFS). This project does not provide one.
 
 ## FAQ
 
