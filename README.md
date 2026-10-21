@@ -17,21 +17,26 @@
 <a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
+<p align="center">
+<a href="../../releases/latest"><img src="https://img.shields.io/badge/DOWNLOAD-LATEST%20RELEASE-f0561e?style=for-the-badge&labelColor=161b22" alt="Download the latest release" /></a>
+<a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/HELP-DISCORD-5865F2?style=for-the-badge&labelColor=161b22&logo=discord&logoColor=white" alt="Get help on Discord" /></a>
+<a href="https://github.com/nitroforge/Nitropack"><img src="https://img.shields.io/badge/MOD-NITROPACK-30363d?style=for-the-badge&labelColor=161b22" alt="Nitropack" /></a>
+</p>
 
 <p align="center"><img src="assets/divider.svg" width="100%" height="6" alt="" /></p>
 
 ## What it does
 
-<table>
-<tr><td width="52" align="center"><img src="assets/i-mouse-pointer-click.svg" width="28" alt="" /></td><td><b>Play in one click</b><br />Sets the mod up in Dolphin and starts the game.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-refresh-cw.svg" width="28" alt="" /></td><td><b>Always up to date</b><br />Downloads only changed files and checks every one. Failed downloads retry on their own.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-download.svg" width="28" alt="" /></td><td><b>Updates itself</b><br />New launcher versions come from the releases and are verified before they replace the old exe.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-user-round.svg" width="28" alt="" /></td><td><b>Mii editor</b><br />Pick every part visually, with a live preview.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-gauge.svg" width="28" alt="" /></td><td><b>Performance mode</b><br />Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-music.svg" width="28" alt="" /></td><td><b>My Stuff</b><br />Drop your own files, like music, into a folder and the launcher adds them to the mod.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-languages.svg" width="28" alt="" /></td><td><b>16 languages</b><br />Switch any time in Settings.</td></tr>
-<tr><td width="52" align="center"><img src="assets/i-shield-check.svg" width="28" alt="" /></td><td><b>Your saves stay yours</b><br />The launcher never installs, replaces or deletes save data.</td></tr>
-</table>
+<p>
+<img src="assets/i-mouse-pointer-click.svg" width="20" alt="" />&nbsp;&nbsp;<b>Play in one click</b> &nbsp;-&nbsp; Sets the mod up in Dolphin and starts the game.<br /><br />
+<img src="assets/i-refresh-cw.svg" width="20" alt="" />&nbsp;&nbsp;<b>Always up to date</b> &nbsp;-&nbsp; Downloads only changed files and checks every one. Failed downloads retry on their own.<br /><br />
+<img src="assets/i-download.svg" width="20" alt="" />&nbsp;&nbsp;<b>Updates itself</b> &nbsp;-&nbsp; New launcher versions come from the releases and are verified before they replace the old exe.<br /><br />
+<img src="assets/i-user-round.svg" width="20" alt="" />&nbsp;&nbsp;<b>Mii editor</b> &nbsp;-&nbsp; Pick every part visually, with a live preview.<br /><br />
+<img src="assets/i-gauge.svg" width="20" alt="" />&nbsp;&nbsp;<b>Performance mode</b> &nbsp;-&nbsp; Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.<br /><br />
+<img src="assets/i-music.svg" width="20" alt="" />&nbsp;&nbsp;<b>My Stuff</b> &nbsp;-&nbsp; Drop your own files, like music, into a folder and the launcher adds them to the mod.<br /><br />
+<img src="assets/i-languages.svg" width="20" alt="" />&nbsp;&nbsp;<b>16 languages</b> &nbsp;-&nbsp; Switch any time in Settings.<br /><br />
+<img src="assets/i-shield-check.svg" width="20" alt="" />&nbsp;&nbsp;<b>Your saves stay yours</b> &nbsp;-&nbsp; The launcher never installs, replaces or deletes save data.
+</p>
 
 ## Get started
 
