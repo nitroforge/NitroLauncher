@@ -16,22 +16,24 @@
 
 ## What it does
 
-- <img src="assets/i-mouse-pointer-click.svg" width="20" alt="" />&nbsp;&nbsp;**Play in one click**
-  - Sets the mod up in Dolphin and starts the game.
-- <img src="assets/i-refresh-cw.svg" width="20" alt="" />&nbsp;&nbsp;**Always up to date**
-  - Downloads only changed files and checks every one. Failed downloads retry on their own.
-- <img src="assets/i-download.svg" width="20" alt="" />&nbsp;&nbsp;**Updates itself**
-  - New launcher versions come from the releases and are verified before they replace the old exe.
-- <img src="assets/i-user-round.svg" width="20" alt="" />&nbsp;&nbsp;**Mii editor**
-  - Pick every part visually, with a live preview.
-- <img src="assets/i-gauge.svg" width="20" alt="" />&nbsp;&nbsp;**Performance mode**
-  - Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.
-- <img src="assets/i-music.svg" width="20" alt="" />&nbsp;&nbsp;**My Stuff**
-  - Drop your own files, like music, into a folder and the launcher adds them to the mod.
-- <img src="assets/i-languages.svg" width="20" alt="" />&nbsp;&nbsp;**16 languages**
-  - Switch any time in Settings.
-- <img src="assets/i-shield-check.svg" width="20" alt="" />&nbsp;&nbsp;**Your saves stay yours**
-  - The launcher never installs, replaces or deletes save data.
+<dl>
+<dt><img src="assets/i-mouse-pointer-click.svg" width="20" alt="" />&nbsp;&nbsp;Play in one click</dt>
+<dd>Sets the mod up in Dolphin and starts the game.</dd>
+<dt><img src="assets/i-refresh-cw.svg" width="20" alt="" />&nbsp;&nbsp;Always up to date</dt>
+<dd>Downloads only changed files and checks every one. Failed downloads retry on their own.</dd>
+<dt><img src="assets/i-download.svg" width="20" alt="" />&nbsp;&nbsp;Updates itself</dt>
+<dd>New launcher versions come from the releases and are verified before they replace the old exe.</dd>
+<dt><img src="assets/i-user-round.svg" width="20" alt="" />&nbsp;&nbsp;Mii editor</dt>
+<dd>Pick every part visually, with a live preview.</dd>
+<dt><img src="assets/i-gauge.svg" width="20" alt="" />&nbsp;&nbsp;Performance mode</dt>
+<dd>Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.</dd>
+<dt><img src="assets/i-music.svg" width="20" alt="" />&nbsp;&nbsp;My Stuff</dt>
+<dd>Drop your own files, like music, into a folder and the launcher adds them to the mod.</dd>
+<dt><img src="assets/i-languages.svg" width="20" alt="" />&nbsp;&nbsp;16 languages</dt>
+<dd>Switch any time in Settings.</dd>
+<dt><img src="assets/i-shield-check.svg" width="20" alt="" />&nbsp;&nbsp;Your saves stay yours</dt>
+<dd>The launcher never installs, replaces or deletes save data.</dd>
+</dl>
 
 ## Get started
 
