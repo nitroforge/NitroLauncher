@@ -48,7 +48,7 @@
 ## Built with
 
 <p align="center">
-<img src="assets/stack.svg" alt="Python, JavaScript, HTML5, CSS3, VS Code, Git, GitHub, Windows" width="100%" />
+<img src="assets/stack.svg" alt="Python, JavaScript, HTML5, CSS3, VS Code, Git, BrawlCrate, Windows" width="100%" />
 </p>
 
 ## License and community
