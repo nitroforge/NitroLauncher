@@ -1,26 +1,25 @@
-<div align="center">
+<p align="center">
+<img src="https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/logo.png" alt="Mario Kart Nitro" width="340" />
+</p>
 
-<img src="https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/logo.png" alt="Mario Kart Nitro" width="420" />
+<p align="center">
+<picture>
+<source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
+<source media="(prefers-color-scheme: light)" srcset="assets/banner-light.png">
+<img src="assets/banner-dark.png" alt="One click. Full speed." width="100%" />
+</picture>
+</p>
 
-<br /><br />
+<p align="center">
+<a href="../../releases/latest"><img src="https://img.shields.io/github/v/release/nitroforge/NitroLauncher?style=flat-square&color=f0561e&labelColor=161b22&label=Latest" alt="Latest" /></a>
+<a href="../../releases"><img src="https://img.shields.io/github/downloads/nitroforge/NitroLauncher/total?style=flat-square&color=30363d&labelColor=161b22&label=Downloads" alt="Downloads" /></a>
+<a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-GPL--3.0-30363d?style=flat-square&labelColor=161b22" alt="License" /></a>
+<a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord" /></a>
+</p>
 
-<img src="assets/banner.jpg" alt="One click. Full speed." width="100%" />
-
-<br /><br />
-
-[![Latest](https://img.shields.io/github/v/release/nitroforge/NitroLauncher?style=flat-square&color=f0561e&labelColor=161b22&label=Latest)](../../releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/nitroforge/NitroLauncher/total?style=flat-square&color=30363d&labelColor=161b22&label=Downloads)](../../releases)
-[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-30363d?style=flat-square&labelColor=161b22)](#what-you-need)
-[![License](https://img.shields.io/badge/License-GPL--3.0-30363d?style=flat-square&labelColor=161b22)](LICENSE.txt)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white)](https://discord.gg/AhkHNPG65G)
-
-<br />
-
-**[Download the launcher](../../releases/latest)** &nbsp;|&nbsp; **[Get help on Discord](https://discord.gg/AhkHNPG65G)**
-
-</div>
-
-<br />
+<p align="center">
+<b><a href="../../releases/latest">Download the launcher</a></b> &nbsp;|&nbsp; <b><a href="https://discord.gg/AhkHNPG65G">Get help on Discord</a></b>
+</p>
 
 ## What it does
 
