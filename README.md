@@ -43,39 +43,7 @@
 
 > **You need** Windows 10 or 11, [Dolphin](https://dolphin-emu.org/) with Riivolution support, and your own Mario Kart Wii disc image (ISO or WBFS). This project does not provide one.
 
-## FAQ
 
-<details>
-<summary><b>Where does the launcher put the mod?</b></summary>
-<br />
-In Dolphin's own user folder, under <code>Load/Riivolution</code>. Nothing is installed anywhere else.
-</details>
-
-<details>
-<summary><b>Will it touch my save files?</b></summary>
-<br />
-No. Save data under <code>riivolution/save</code> is never downloaded, replaced or deleted by the launcher. The game creates it on your PC the first time you play.
-</details>
-
-<details>
-<summary><b>I get error 22005 when going online.</b></summary>
-<br />
-That error means the save profile belongs to a different console. Close Dolphin, then rename
-<code>Dolphin\User\Load\Riivolution\riivolution\save\NitroWFC\RMCP\rksys.dat</code> to <code>rksys.dat.bak</code> (use <code>RMCE</code> for the US version) and start the game again.
-A new save is created from your normal Mario Kart Wii save. Only do this if you have the error, because a working save holds your progress.
-</details>
-
-<details>
-<summary><b>The download failed or says GitHub is not serving a file.</b></summary>
-<br />
-The launcher retries by itself. If it still fails, wait a few minutes and press Play again. Everything that already downloaded is kept.
-</details>
-
-<details>
-<summary><b>Do you provide the game?</b></summary>
-<br />
-No. You need your own copy of Mario Kart Wii.
-</details>
 
 ## Built with
 
