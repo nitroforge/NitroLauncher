@@ -23,29 +23,29 @@
 <a href="https://github.com/nitroforge/Nitropack"><img src="https://img.shields.io/badge/MOD-NITROPACK-30363d?style=for-the-badge&labelColor=161b22" alt="Nitropack" /></a>
 </p>
 
+<p align="center"><img src="assets/divider.svg" width="100%" height="6" alt="" /></p>
+
 ## What it does
 
-<p align="center">
-<img src="assets/f1.png" alt="Play in one click" width="100%" /><br />
-<img src="assets/f2.png" alt="Always up to date" width="100%" /><br />
-<img src="assets/f3.png" alt="Updates itself" width="100%" /><br />
-<img src="assets/f4.png" alt="Mii editor" width="100%" /><br />
-<img src="assets/f5.png" alt="Performance mode" width="100%" /><br />
-<img src="assets/f6.png" alt="My Stuff" width="100%" /><br />
-<img src="assets/f7.png" alt="16 languages" width="100%" /><br />
-<img src="assets/f8.png" alt="Your saves stay yours" width="100%" />
-</p>
+<table>
+<tr><td width="52" align="center"><img src="assets/i-mouse-pointer-click.svg" width="28" alt="" /></td><td><b>Play in one click</b><br />Sets the mod up in Dolphin and starts the game.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-refresh-cw.svg" width="28" alt="" /></td><td><b>Always up to date</b><br />Downloads only changed files and checks every one. Failed downloads retry on their own.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-download.svg" width="28" alt="" /></td><td><b>Updates itself</b><br />New launcher versions come from the releases and are verified before they replace the old exe.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-user-round.svg" width="28" alt="" /></td><td><b>Mii editor</b><br />Pick every part visually, with a live preview.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-gauge.svg" width="28" alt="" /></td><td><b>Performance mode</b><br />Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-music.svg" width="28" alt="" /></td><td><b>My Stuff</b><br />Drop your own files, like music, into a folder and the launcher adds them to the mod.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-languages.svg" width="28" alt="" /></td><td><b>16 languages</b><br />Switch any time in Settings.</td></tr>
+<tr><td width="52" align="center"><img src="assets/i-shield-check.svg" width="28" alt="" /></td><td><b>Your saves stay yours</b><br />The launcher never installs, replaces or deletes save data.</td></tr>
+</table>
 
 ## Get started
 
-<p align="center">
-<img src="assets/s1.png" alt="Step 1: Download" width="100%" /><br />
-<img src="assets/s2.png" alt="Step 2: Set it up" width="100%" /><br />
-<img src="assets/s3.png" alt="Step 3: Sync the mod" width="100%" /><br />
-<img src="assets/s4.png" alt="Step 4: Press Play" width="100%" />
-</p>
+1. **Download** `MarioKartNitro.exe` from the [latest release](../../releases/latest).
+2. **Set it up.** Point it to `Dolphin.exe` and your own game file.
+3. **Sync the mod.** The first launch downloads everything for you.
+4. **Press Play.** Updates are checked every time you open the launcher.
 
-**You need:** Windows 10 or 11, [Dolphin](https://dolphin-emu.org/) with Riivolution support, and your own Mario Kart Wii disc image (ISO or WBFS). This project does not provide one.
+> **You need** Windows 10 or 11, [Dolphin](https://dolphin-emu.org/) with Riivolution support, and your own Mario Kart Wii disc image (ISO or WBFS). This project does not provide one.
 
 ## FAQ
 
