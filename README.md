@@ -23,7 +23,7 @@
 
 <p>
 <img src="assets/i-mouse-pointer-click.svg" width="20" alt="" />&nbsp;&nbsp;<b>Play in one click</b> &nbsp;-&nbsp; Sets the mod up in Dolphin and starts the game.<br /><br />
-<img src="assets/i-refresh-cw.svg" width="20" alt="" />&nbsp;&nbsp;<b>Always up to date</b> &nbsp;-&nbsp; Downloads only changed files and checks every one. Failed downloads retry on their own.
+<img src="assets/i-refresh-cw.svg" width="20" alt="" />&nbsp;&nbsp;<b>Always up to date</b> &nbsp;-&nbsp; Downloads only changed files and checks every one. Failed downloads retry on their own.<br /><br />
 <img src="assets/i-download.svg" width="20" alt="" />&nbsp;&nbsp;<b>Updates itself</b> &nbsp;-&nbsp; New launcher versions come from the releases and are verified before they replace the old exe.<br /><br />
 <img src="assets/i-user-round.svg" width="20" alt="" />&nbsp;&nbsp;<b>Mii editor</b> &nbsp;-&nbsp; Pick every part visually, with a live preview.<br /><br />
 <img src="assets/i-gauge.svg" width="20" alt="" />&nbsp;&nbsp;<b>Performance mode</b> &nbsp;-&nbsp; Starts Dolphin with settings tuned for speed. Your own Dolphin settings are not changed.<br /><br />
