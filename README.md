@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/logo.png" alt="Mario Kart Nitro" width="340" />
+<img src="https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/logo.png" alt="Mario Kart Nitro" width="150" />
 </p>
 
 <p align="center">
