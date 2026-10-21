@@ -58,10 +58,15 @@
 <a href="https://www.microsoft.com/windows"><img src="assets/stack/windows.svg" alt="Windows" width="88" /></a>
 </p>
 
-## License and community
+<br />
 
-GPL v3, see [LICENSE.txt](LICENSE.txt). Third-party parts and their licenses are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
-Questions, bugs, or just want to chat? Join the [Discord](https://discord.gg/AhkHNPG65G).
+<h3 align="center">License and community</h3>
+
+<p align="center">
+GPL v3, see <a href="LICENSE.txt">LICENSE.txt</a>.<br />
+Third-party parts and their licenses are listed in <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>.<br />
+Questions, bugs, or just want to chat? Join the <a href="https://discord.gg/AhkHNPG65G">Discord</a>.
+</p>
 
 <br />
 
