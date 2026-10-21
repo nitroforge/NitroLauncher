@@ -17,12 +17,6 @@
 <a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
-<p align="center">
-<a href="../../releases/latest"><img src="https://img.shields.io/badge/DOWNLOAD-LATEST%20RELEASE-f0561e?style=for-the-badge&labelColor=161b22" alt="Download the latest release" /></a>
-<a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/HELP-DISCORD-5865F2?style=for-the-badge&labelColor=161b22&logo=discord&logoColor=white" alt="Get help on Discord" /></a>
-<a href="https://github.com/nitroforge/Nitropack"><img src="https://img.shields.io/badge/MOD-NITROPACK-30363d?style=for-the-badge&labelColor=161b22" alt="Nitropack" /></a>
-</p>
-
 <p align="center"><img src="assets/divider.svg" width="100%" height="6" alt="" /></p>
 
 ## What it does
