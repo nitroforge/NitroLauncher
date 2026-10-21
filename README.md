@@ -48,7 +48,14 @@
 ## Built with
 
 <p align="center">
-<img src="assets/stack.svg" alt="Python, JavaScript, HTML5, CSS3, VS Code, Git, BrawlCrate, Windows" width="100%" />
+<a href="https://www.python.org/"><img src="assets/stack/python.svg" alt="Python" width="88" /></a>
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="assets/stack/javascript.svg" alt="JavaScript" width="88" /></a>
+<a href="https://html.spec.whatwg.org/"><img src="assets/stack/html5.svg" alt="HTML5" width="88" /></a>
+<a href="https://www.w3.org/Style/CSS/"><img src="assets/stack/css3.svg" alt="CSS3" width="88" /></a>
+<a href="https://code.visualstudio.com/"><img src="assets/stack/vscode.svg" alt="VS Code" width="88" /></a>
+<a href="https://git-scm.com/"><img src="assets/stack/git.svg" alt="Git" width="88" /></a>
+<a href="https://github.com/soopercool101/BrawlCrate"><img src="assets/stack/brawlcrate.svg" alt="BrawlCrate" width="88" /></a>
+<a href="https://www.microsoft.com/windows"><img src="assets/stack/windows.svg" alt="Windows" width="88" /></a>
 </p>
 
 ## License and community
