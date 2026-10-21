@@ -1,7 +1,7 @@
 <p align="center">
 <picture>
 <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.webp">
-<img src="assets/hero-dark.webp" alt="Mario Kart Nitro - one click, full speed" width="100%" />
+<img src="assets/hero-dark.webp" alt="Mario Kart Nitro - one click, full speed" width="520" />
 </picture>
 </p>
 
