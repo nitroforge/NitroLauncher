@@ -58,6 +58,3 @@ Questions, bugs, or just want to chat? Join the [Discord](https://discord.gg/Ahk
 
 <br />
 
-<div align="center">
-<sub>A project by <b>NitroForge</b>. Mario Kart Nitro is a fan project and is not affiliated with or endorsed by Nintendo. Mario Kart and Wii are trademarks of Nintendo.</sub>
-</div>
