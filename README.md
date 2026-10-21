@@ -1,12 +1,7 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/logo.png" alt="Mario Kart Nitro" width="150" />
-</p>
-
-<p align="center">
 <picture>
-<source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.png">
-<source media="(prefers-color-scheme: light)" srcset="assets/banner-light.png">
-<img src="assets/banner-dark.png" alt="One click. Full speed." width="100%" />
+<source media="(prefers-color-scheme: light)" srcset="assets/hero-light.webp">
+<img src="assets/hero-dark.webp" alt="Mario Kart Nitro - one click, full speed" width="100%" />
 </picture>
 </p>
 
@@ -15,13 +10,6 @@
 <a href="../../releases"><img src="https://img.shields.io/github/downloads/nitroforge/NitroLauncher/total?style=flat-square&color=30363d&labelColor=161b22&label=Downloads" alt="Downloads" /></a>
 <a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-GPL--3.0-30363d?style=flat-square&labelColor=161b22" alt="License" /></a>
 <a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord" /></a>
-</p>
-
-<p align="center">
-<picture>
-<source media="(prefers-color-scheme: light)" srcset="assets/hero-light.png">
-<img src="assets/hero.gif" alt="A project by NitroForge" width="100%" />
-</picture>
 </p>
 
 <p align="center"><img src="assets/divider.svg" width="100%" height="6" alt="" /></p>
