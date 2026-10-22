@@ -51,8 +51,7 @@ THIRD_PARTY_NOTICES.md. This license does not change them.
 
   This license also does not cover anything owned by Nintendo or other
 companies. No Nintendo content is licensed here. This includes game data and
-artwork that may be shipped next to the launcher or built into test copies,
-for example RFL_Res.dat, the Mii body models (miiMaleBody.glb,
+artwork that may be shipped next to the launcher or built into test copies, the Mii body models (miiMaleBody.glb,
 miiFemaleBody.glb), the Mii Channel icons and the symbols taken from the
 game fonts. Mario Kart, Wii, Mii and related names, characters and
 resources belong to Nintendo.
@@ -103,26 +102,20 @@ you give NitroForge a free, permanent, worldwide right to use, change and
 distribute it as part of NitroForge Materials, including under other
 licenses. You keep credit for your work where it is practical.
 
-  6. Earlier versions.
 
-  Versions of the launcher that NitroForge published under the GNU General
-Public License version 3 (GPL-3.0) before this license took effect stay
-under GPL-3.0 for everyone who already received them. This license applies
-to all versions published after this license is added to the repository.
-
-  7. Ending of rights.
+  6. Ending of rights.
 
   If you break this license, your rights under it end at once. NitroForge
 may also report copies to hosting providers and ask for their removal.
 
-  8. No warranty, limited liability.
+  7. No warranty, limited liability.
 
   NitroForge Materials are provided "as is", without any warranty. To the
 extent allowed by law, NitroForge is not liable for damage that comes from
 using or not being able to use them, including lost saves or data. Nothing
 in this license limits liability that cannot be limited by law.
 
-  9. General.
+  8. General.
 
   If a part of this license is not valid, the rest stays valid. This license
 is governed by the laws of Austria, and the courts of Vienna are
