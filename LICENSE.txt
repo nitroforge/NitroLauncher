@@ -139,4 +139,3 @@ the start of the file:
     Licensed under the NitroForge Source-Available License, Version 1.0
     (LicenseRef-NitroForge-1.0). See LICENSE.txt in the root folder.
 
-  This license is not legal advice and has not been reviewed by a lawyer.
