@@ -1,24 +1,27 @@
 # Third-party notices
 
-Mario Kart Nitro's own launcher code is licensed under the GNU General
-Public License v3.0 (see `LICENSE` in this same folder). It also includes
-or is informed by the third-party components listed below.
+The code and artwork that NitroForge made for Mario Kart Nitro (the launcher
+and the NitroForge Mii renderer) are covered by the NitroForge Source-Available
+License (see `LICENSE.txt` in this same folder). The parts below were made by
+other people and keep their own licenses.
 
+## three.js (inside the NitroForge Mii renderer)
 
+Bundled in `mii_renderer/nitroforge-mii.js`. three.js r160, MIT License,
+Copyright (c) 2010-2023 three.js authors. The full MIT text is in
+`mii_renderer/THIRD_PARTY_NitroForge_Mii.txt`.
 
-## Mii renderer (MiiJS / FFL.js and its own dependencies)
+## RFL_Res.dat and other game data (Mii renderer resources)
 
-Bundled in `mii_renderer/`. See `mii_renderer/THIRD_PARTY_NOTICES.md` and
-`mii_renderer/FFL_LICENSE` for full details — in short, it includes
-ffl.js under AGPL-3.0, plus fzstd and asmCrypto.js under MIT.
+`RFL_Res.dat` is bundled directly in the built .exe. It is included under a
+license obtained separately for redistribution in this project. It is not
+open source and it is not covered by the NitroForge license. Don't re-extract
+and redistribute this file outside of Mario Kart Nitro itself without checking
+that license yourself.
 
-## RFL_Res.dat (Mii renderer resource)
-
-Bundled directly in the built .exe. Included under a license obtained
-separately for redistribution in this project — not open-source, and
-not covered by the GPL-3.0 terms above. Don't re-extract and redistribute
-this file outside of Mario Kart Nitro itself without checking that
-license yourself.
+The Mii body models (`mii_renderer/miiMaleBody.glb`, `miiFemaleBody.glb`) and
+any Mii Channel icons or game-font symbols belong to Nintendo and are not
+covered by the NitroForge license either.
 
 ## Fonts (bundled in `fonts/`)
 
