@@ -5,11 +5,6 @@ and the NitroForge Mii renderer) are covered by the NitroForge Source-Available
 License (see `LICENSE.txt` in this same folder). The parts below were made by
 other people and keep their own licenses.
 
-## three.js (inside the NitroForge Mii renderer)
-
-Bundled in `mii_renderer/nitroforge-mii.js`. three.js r160, MIT License,
-Copyright (c) 2010-2023 three.js authors. The full MIT text is in
-`mii_renderer/THIRD_PARTY_NitroForge_Mii.txt`.
 
 ## RFL_Res.dat and other game data (Mii renderer resources)
 
