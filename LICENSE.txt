@@ -1,98 +1,142 @@
-NITROFORGE SOURCE-AVAILABLE LICENSE
-Version 1.0
+                  NITROFORGE SOURCE-AVAILABLE LICENSE
+                             Version 1.0
+                   License identifier: LicenseRef-NitroForge-1.0
 
-Copyright (c) 2026 NitroForge. All rights reserved.
+ Copyright (c) 2026 NitroForge. All rights reserved.
 
-1. WHAT THIS LICENSE COVERS
+ Official page: https://github.com/nitroforge/NitroLauncher
 
-"NitroForge Materials" means everything in this repository that NitroForge
-created: the launcher source code, the launcher program (MarioKartNitro.exe),
-logos, banners, artwork, icons, images, animations and documentation.
+                              Preamble
 
-This includes the NitroForge Mii renderer (the folder mii_renderer and its
-source), which NitroForge wrote itself.
+  Mario Kart Nitro is made by NitroForge and is meant to be used, played and
+studied by the community. Its source code is public so that anyone can read
+it, learn from it and suggest improvements. It is, however, not open-source
+software: NitroForge keeps the right to decide who may copy, host, sell or
+build on it.
 
-NitroForge Materials do NOT include "Third-Party Materials": code, fonts,
-data or other files made by other people (for example fonts and libraries
-such as three.js). Third-Party Materials stay under their own licenses, which
-are listed in THIRD_PARTY_NOTICES.md. This license does not change them.
+  This license says in plain terms what you may do without asking, what you
+may not do without written permission, and how to ask for permission. Mario
+Kart, Wii, Mii and related names belong to Nintendo and are not licensed
+here.
 
-This license also does not cover anything owned by Nintendo or other
+  The Preamble explains the license and is not part of the terms. The terms
+and conditions follow.
+
+                       TERMS AND CONDITIONS
+
+  0. Definitions.
+
+  "You" means anyone who uses, reads, copies or otherwise deals with
+NitroForge Materials.
+
+  "NitroForge Materials" means everything in this repository that NitroForge
+created: the launcher source code, the launcher program
+(MarioKartNitro.exe), logos, banners, artwork, icons, images, animations and
+documentation. This includes the NitroForge Mii renderer (the folder
+mii_renderer and its source), which NitroForge wrote itself.
+
+  "Third-Party Materials" means code, fonts, data or other files made by
+other people, for example fonts and libraries such as three.js.
+
+  "Official release" means a release published by NitroForge on the official
+NitroForge GitHub page.
+
+  1. What this license covers.
+
+  This license covers NitroForge Materials.
+
+  NitroForge Materials do NOT include Third-Party Materials. Third-Party
+Materials stay under their own licenses, which are listed in
+THIRD_PARTY_NOTICES.md. This license does not change them.
+
+  This license also does not cover anything owned by Nintendo or other
 companies. No Nintendo content is licensed here. This includes game data and
 artwork that may be shipped next to the launcher or built into test copies,
 for example RFL_Res.dat, the Mii body models (miiMaleBody.glb,
-miiFemaleBody.glb), the Mii Channel icons and the symbols taken from the game
-fonts. Mario Kart, Wii, Mii and related names, characters and resources belong
-to Nintendo.
+miiFemaleBody.glb), the Mii Channel icons and the symbols taken from the
+game fonts. Mario Kart, Wii, Mii and related names, characters and
+resources belong to Nintendo.
 
-2. WHAT YOU MAY DO (no permission needed)
+  2. What you may do (no permission needed).
 
-a) Read and study the source code.
-b) Download the official release from the official NitroForge GitHub page
-   and use it for personal, non-commercial purposes.
-c) Play, record and stream Mario Kart Nitro with the launcher, including
-   videos, streams and tournaments for fun, as long as you do not sell the
-   launcher or charge for access to it.
-d) Make a private copy or a GitHub fork only to suggest improvements to
-   NitroForge, for example in a pull request.
-e) Report bugs and ideas.
+    a) Read and study the source code.
+    b) Download the official release from the official NitroForge GitHub
+       page and use it for personal, non-commercial purposes.
+    c) Play, record and stream Mario Kart Nitro with the launcher, including
+       videos, streams and tournaments for fun, as long as you do not sell
+       the launcher or charge for access to it.
+    d) Make a private copy or a GitHub fork only to suggest improvements to
+       NitroForge, for example in a pull request.
+    e) Report bugs and ideas.
 
-3. WHAT YOU MAY NOT DO (without written permission from NitroForge)
+  3. What you may not do (without written permission from NitroForge).
 
-a) Copy, redistribute, publish or host NitroForge Materials, in whole or in
-   part, in original or modified form, on any website, store, server or
-   other platform.
-b) Build a launcher, installer, mod manager or similar program that uses,
-   copies or is derived from NitroForge Materials.
-c) Sell, rent, sublicense or otherwise make money from NitroForge Materials.
-   This includes ads, paid access, paid downloads, and donation or
-   subscription pages that are tied to NitroForge Materials.
-d) Remove or change copyright notices, license texts or credits.
-e) Use the names "NitroForge", "Nitro Launcher" or "Mario Kart Nitro", or any
-   NitroForge logo, banner or artwork, in a way that suggests your project
-   is the official one or is made, approved or supported by NitroForge.
-f) Bypass or help others bypass any update, safety or save-protection
-   feature of the launcher.
+    a) Copy, redistribute, publish or host NitroForge Materials, in whole or
+       in part, in original or modified form, on any website, store, server
+       or other platform.
+    b) Build a launcher, installer, mod manager or similar program that
+       uses, copies or is derived from NitroForge Materials.
+    c) Sell, rent, sublicense or otherwise make money from NitroForge
+       Materials. This includes ads, paid access, paid downloads, and
+       donation or subscription pages that are tied to NitroForge
+       Materials.
+    d) Remove or change copyright notices, license texts or credits.
+    e) Use the names "NitroForge", "Nitro Launcher" or "Mario Kart Nitro",
+       or any NitroForge logo, banner or artwork, in a way that suggests
+       your project is the official one or is made, approved or supported
+       by NitroForge.
+    f) Bypass or help others bypass any update, safety or save-protection
+       feature of the launcher.
 
-4. ASKING FOR PERMISSION
+  4. Asking for permission.
 
-Permission is only valid if NitroForge gives it in writing (a Discord
+  Permission is only valid if NitroForge gives it in writing (a Discord
 message from an official NitroForge account or an email counts). Permission
 can be limited in time or scope and can be taken back for future use.
 Contact: via the official NitroForge Discord server or GitHub page.
 
-5. CONTRIBUTIONS
+  5. Contributions.
 
-If you send NitroForge code, art or other material (for example a pull
+  If you send NitroForge code, art or other material (for example a pull
 request), you confirm that you wrote it or have the right to share it, and
 you give NitroForge a free, permanent, worldwide right to use, change and
 distribute it as part of NitroForge Materials, including under other
 licenses. You keep credit for your work where it is practical.
 
-6. EARLIER VERSIONS
+  6. Earlier versions.
 
-Versions of the launcher that NitroForge published under the GNU General
+  Versions of the launcher that NitroForge published under the GNU General
 Public License version 3 (GPL-3.0) before this license took effect stay
 under GPL-3.0 for everyone who already received them. This license applies
 to all versions published after this license is added to the repository.
 
-7. ENDING OF RIGHTS
+  7. Ending of rights.
 
-If you break this license, your rights under it end at once. NitroForge may
-also report copies to hosting providers and ask for their removal.
+  If you break this license, your rights under it end at once. NitroForge
+may also report copies to hosting providers and ask for their removal.
 
-8. NO WARRANTY, LIMITED LIABILITY
+  8. No warranty, limited liability.
 
-NitroForge Materials are provided "as is", without any warranty. To the
+  NitroForge Materials are provided "as is", without any warranty. To the
 extent allowed by law, NitroForge is not liable for damage that comes from
-using or not being able to use them, including lost saves or data.
-Nothing in this license limits liability that cannot be limited by law.
+using or not being able to use them, including lost saves or data. Nothing
+in this license limits liability that cannot be limited by law.
 
-9. GENERAL
+  9. General.
 
-If a part of this license is not valid, the rest stays valid. This license
+  If a part of this license is not valid, the rest stays valid. This license
 is governed by the laws of Austria, and the courts of Vienna are
 responsible, unless mandatory law says otherwise.
 
-NOTE: This is a draft written without a lawyer. Have it checked before you
-rely on it.
+                    END OF TERMS AND CONDITIONS
+
+              How to Apply This License to Source Files
+
+  To show that a file belongs to NitroForge Materials, put this notice at
+the start of the file:
+
+    Copyright (c) 2026 NitroForge. All rights reserved.
+    Licensed under the NitroForge Source-Available License, Version 1.0
+    (LicenseRef-NitroForge-1.0). See LICENSE.txt in the root folder.
+
+  This license is not legal advice and has not been reviewed by a lawyer.
