@@ -21,7 +21,7 @@ VSVersionInfo(
             StringStruct('FileDescription', 'Mario Kart Nitro Launcher'),
             StringStruct('FileVersion', '1.0.0.0'),
             StringStruct('InternalName', 'MarioKartNitro'),
-            StringStruct('LegalCopyright', 'mkwiichannel - GPL-3.0'),
+            StringStruct('LegalCopyright', 'NitroForge - NitroForge License'),
             StringStruct('OriginalFilename', 'MarioKartNitro.exe'),
             StringStruct('ProductName', 'Mario Kart Nitro'),
             StringStruct('ProductVersion', '1.0.0.0'),

@@ -427,6 +427,27 @@
   .lu-actions .btn.later{ background:rgba(255,255,255,0.06); color:var(--text-dim); }
   .lu-actions .btn.later:hover{ background:rgba(255,255,255,0.1); color:var(--text); }
   .lu-actions .btn[disabled]{ opacity:.55; pointer-events:none; }
+
+  /* name symbols */
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  .mii-namewrap{display:flex;align-items:center;gap:8px;min-width:0}
+  .mii-namebox{flex:1;min-width:0;box-sizing:border-box;min-height:38px;display:flex;align-items:center;flex-wrap:nowrap;white-space:pre;overflow:hidden;background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--text);padding:0 12px;font:inherit;font-size:14px;cursor:text;outline:none;caret-color:#fff}
+  .mii-namebox:focus{border-color:rgba(255,140,0,.55)}
+  .mii-namebox img{height:24px;width:auto;margin:0 1px;vertical-align:middle;flex:none;user-select:all;-webkit-user-drag:none}
+  .mii-symbtn{flex:none;width:38px;height:38px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:background .15s,border-color .15s}
+  .mii-symbtn img{width:22px;height:22px;opacity:.92}
+  .mii-symbtn:hover{border-color:rgba(255,140,0,.4)}
+  .mii-symbtn[aria-expanded=true]{border-color:rgba(255,140,0,.6);background:rgba(255,107,0,.12)}
+  .mii-sympanel{margin:4px 0 12px;padding:12px;border:1px solid rgba(255,140,0,.3);border-radius:10px;background:rgba(255,107,0,.05)}
+  .mii-sympanel[hidden]{display:none}
+  .mii-symbtn[hidden]{display:none}
+  .mii-symhead{margin:0 0 8px;font-size:10px;letter-spacing:.12em;font-weight:600;color:#c58bff;text-transform:uppercase}
+  .mii-symgrid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.mii-symgrid:last-child{margin-bottom:0}
+  .mii-symgrid button{width:44px;height:44px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .mii-symgrid button.nitro{border-color:rgba(255,140,0,.45);background:rgba(255,107,0,.1)}
+  .mii-symgrid button:hover{border-color:rgba(255,140,0,.8);transform:translateY(-1px)}
+  .mii-symgrid img{max-width:32px;max-height:32px;pointer-events:none}
+  .mii-slot .name img.mii-nsym{height:1.25em;width:auto;vertical-align:-0.25em;margin:0 1px}
 </style>
 </head>
 <body>
@@ -524,7 +545,11 @@
         <button class="mii-tab" data-miitab="extras" id="miiSubtabExtras">Extras</button>
       </div>
       <div class="mii-section active" id="miitab-identity">
-        <div class="mii-field"><label id="miiLblName">Name</label><input type="text" id="miiName" maxlength="10"></div>
+        <div class="mii-field"><label id="miiLblName">Name</label><div class="mii-namewrap"><input type="text" id="miiName" maxlength="10" hidden><div id="miiNameBox" class="mii-namebox" contenteditable="true" spellcheck="false" role="textbox" aria-labelledby="miiLblName"></div><button type="button" id="miiSymBtn" class="mii-symbtn" aria-expanded="false" aria-controls="miiSymPanel"><img src="data:image/png;base64,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" alt=""><span id="miiSymTitle" class="sr-only">Symbols</span></button></div></div>
+        <div class="mii-sympanel" id="miiSymPanel" hidden>
+          <div class="mii-symhead" id="miiSymRanks">Nitro ranks</div><div class="mii-symgrid" id="miiSymGridRanks"></div>
+          <div class="mii-symhead" id="miiSymGame">Game symbols</div><div class="mii-symgrid" id="miiSymGridGame"></div>
+        </div>
         <div class="mii-row2">
           <div class="mii-field"><label id="miiLblGender">Gender</label><select id="miiGender"><option value="0" id="miiOptMale">Male</option><option value="1" id="miiOptFemale">Female</option></select></div>
           <div class="mii-field"><label id="miiLblFav">Favorite color</label><select id="miiFav"></select></div>
@@ -563,8 +588,14 @@
       </div>
       <div class="mii-section" id="miitab-extras">
         <div class="mii-row2"><div class="mii-field"><label id="miiLblGlasses">Glasses</label><select id="miiGlassType"></select></div><div class="mii-field"><label id="miiLblGlassesColor">Glasses color</label><select id="miiGlassColor"></select></div></div>
-        <div class="mii-row2"><div class="mii-field"><label id="miiLblMustache">Mustache</label><select id="miiMustache"></select></div><div class="mii-field"><label id="miiLblBeard">Beard</label><select id="miiBeard"></select></div></div>
+        <div class="mii-row2"><div class="mii-field"><label id="miiLblGlassSize">Size</label><input id="miiGlassSize" type="range" min="0" max="7"></div><div class="mii-field"><label id="miiLblGlassVert">Vertical</label><input id="miiGlassVert" type="range" min="0" max="20"></div></div>
+        <div class="mii-field"><label id="miiLblMustache">Mustache</label><select id="miiMustache"></select></div>
+        <div class="mii-row2"><div class="mii-field"><label id="miiLblMustSize">Size</label><input id="miiMustSize" type="range" min="0" max="8"></div><div class="mii-field"><label id="miiLblMustVert">Vertical</label><input id="miiMustVert" type="range" min="0" max="16"></div></div>
+        <div class="mii-field"><label id="miiLblBeard">Beard</label><select id="miiBeard"></select></div>
         <div class="mii-field"><label id="miiLblBeardColor">Beard color</label><select id="miiBeardColor"></select></div>
+        <div class="field-inline"><input type="checkbox" id="miiMole"> <span id="miiLblMole">Mole</span></div>
+        <div class="mii-row2"><div class="mii-field"><label id="miiLblMoleSize">Size</label><input id="miiMoleSize" type="range" min="0" max="8"></div><div class="mii-field"><label id="miiLblMoleVert">Vertical</label><input id="miiMoleVert" type="range" min="0" max="30"></div></div>
+        <div class="mii-field"><label id="miiLblMoleHoriz">Horizontal</label><input id="miiMoleHoriz" type="range" min="0" max="16"></div>
         <div class="mii-field"><label id="miiLblCreator">Creator name</label><input type="text" id="miiCreator" maxlength="10"></div>
         <div class="mii-status" id="miiStatus"></div>
       </div>
@@ -734,6 +765,18 @@ function miiFeatureCanonicalToWii(canonicalFeature, canonicalMakeup) {
     return numericLegacyMakeup;
   }
   return Number.isFinite(numericLegacyFeature) ? numericLegacyFeature : 0;
+}
+
+function miiNameHtml(name) {
+  let out = "", buf = "";
+  for (const ch of String(name)) {
+    const n = ch.charCodeAt(0);
+    if (n >= 0xF000 && n <= 0xF085) {
+      if (buf) { out += escapeHtml(buf); buf = ""; }
+      out += '<img class="mii-nsym" src="mii_renderer/name_symbols/' + n.toString(16).toUpperCase() + '.png" alt="" onerror="this.remove()">';
+    } else buf += ch;
+  }
+  return out + escapeHtml(buf);
 }
 
 function escapeHtml(value) {
@@ -987,7 +1030,7 @@ async function refreshMiis() {
       button.innerHTML =
         `<span class="num">${String(i + 1).padStart(2, "0")}</span>` +
         `<span class="name">` +
-        `${escapeHtml(m.name || "Unnamed Mii")} ` +
+        `${miiNameHtml(m.name || "Unnamed Mii")} ` +
         `<small style="opacity:.55;font-size:10px">${tag}</small>` +
         `</span>`;
 
@@ -1162,6 +1205,15 @@ function loadMiiForm(m) {
     miiColorCanonicalToWii(MII_GLASSES_COLORS_TABLE, g("glassesColor") ?? 0)
   );
 
+  miiSet("miiGlassSize", g("glassesSize") ?? 4);
+  miiSet("miiGlassVert", g("glassesYPosition") ?? 10);
+  miiSet("miiMustSize", g("mustacheSize") ?? 4);
+  miiSet("miiMustVert", g("mustacheYPosition") ?? 10);
+  miiSet("miiMoleSize", g("moleSize") ?? 4);
+  miiSet("miiMoleVert", g("moleYPosition") ?? 20);
+  miiSet("miiMoleHoriz", g("moleXPosition") ?? 2);
+  { const mole = document.getElementById("miiMole"); if (mole) mole.checked = !!g("moleOn"); }
+
   miiSet(
     "miiMustache",
     g("mustacheType") ?? 0
@@ -1279,6 +1331,15 @@ async function applyMiiForm() {
     "glassesColor",
     miiColorWiiToCanonical(MII_GLASS_COLOR_WII_TO_CANON, Number(miiVal("miiGlassColor")))
   );
+
+  set("glassesSize", miiVal("miiGlassSize"));
+  set("glassesYPosition", miiVal("miiGlassVert"));
+  set("mustacheSize", miiVal("miiMustSize"));
+  set("mustacheYPosition", miiVal("miiMustVert"));
+  set("moleSize", miiVal("miiMoleSize"));
+  set("moleYPosition", miiVal("miiMoleVert"));
+  set("moleXPosition", miiVal("miiMoleHoriz"));
+  { const mole = document.getElementById("miiMole"); if (mole) set("moleOn", mole.checked); }
 
   set("mustacheType", miiVal("miiMustache"));
   set("beardType", miiVal("miiBeard"));
@@ -1953,6 +2014,7 @@ const MII_STEP_ICONS = [
   [/Rot$/,   "\u21BA", "\u21BB", 1, "rotL", "rotR"],
   [/Vert$/,  "\u25B2", "\u25BC", 1, "up", "down"],
   [/Space$/, "\u2192\u2190", "\u2190\u2192", 1, "wide", "near"],
+  [/Horiz$/, "\u2190", "\u2192", 1, "left", "right"],
   [/(Size|Height|Weight)$/, "\u2212", "+", 1, "reduce", "enlarge"]
 ];
 const miiSteppers = [];
@@ -2014,6 +2076,64 @@ document.querySelectorAll(".mii-tab").forEach(btn => btn.addEventListener("click
     if (a) a.scrollIntoView({ block: "nearest" });
   }, 40);
 }));
+
+
+/* ---- Mii name with symbols (private-use characters from the game font) ---- */
+const MII_SYMBOLS = [["F07D", "nitro_rank_1"], ["F07E", "nitro_rank_2"], ["F07F", "nitro_rank_3"], ["F080", "nitro_rank_4"], ["F081", "nitro_rank_5"], ["F082", "nitro_rank_6"], ["F083", "nitro_rank_7"], ["F084", "nitro_rank_8"], ["F085", "nitro_rank_9"], ["F03C", "button_A_green"], ["F041", "button_B_wiimote"], ["F058", "button_B_red"], ["F061", "star_1"], ["F062", "star_2"], ["F063", "star_3"], ["F064", "wheel_white"], ["F065", "wheel_white_star1"], ["F066", "wheel_white_star2"], ["F067", "wheel_white_star3"], ["F068", "coin"], ["F069", "balloons"], ["F06A", "trophy_gold"], ["F06B", "trophy_silver"], ["F06C", "trophy_bronze"], ["F06D", "crown"], ["F074", "wheel_gold"], ["F075", "wheel_gold_star1"], ["F076", "wheel_gold_star2"], ["F077", "wheel_gold_star3"], ["F078", "rank_A"], ["F079", "rank_B"], ["F07A", "rank_C"], ["F07B", "rank_D"], ["F07C", "rank_E"]];
+(function(){
+  const input = document.getElementById("miiName"), box = document.getElementById("miiNameBox");
+  const btn = document.getElementById("miiSymBtn"), panel = document.getElementById("miiSymPanel");
+  if (!input || !box) return;
+  const MAX = 10, SRC = c => "mii_renderer/name_symbols/" + c + ".png";
+  const isSym = ch => { const n = ch.charCodeAt(0); return n >= 0xF000 && n <= 0xF085; };
+  const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+  const mkImg = ch => { const im = document.createElement("img"); im.src = SRC(ch.charCodeAt(0).toString(16).toUpperCase()); im.dataset.c = ch; im.alt = ""; im.contentEditable = "false"; im.draggable = false; im.onerror = () => { im.style.display = "none"; }; return im; };
+  const readBox = () => { let t = ""; box.childNodes.forEach(n => { if (n.nodeType === 3) t += n.nodeValue.replace(/[\r\n]/g, ""); else if (n.nodeName === "IMG") t += n.dataset.c || ""; }); return t; };
+  const build = str => { box.textContent = ""; let buf = ""; const flush = () => { if (buf) { box.appendChild(document.createTextNode(buf)); buf = ""; } };
+    for (const ch of str) { if (isSym(ch)) { flush(); box.appendChild(mkImg(ch)); } else buf += ch; } flush(); };
+  const caretEnd = () => { const r = document.createRange(); r.selectNodeContents(box); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+  // setting input.value from code (loading a Mii) redraws the box
+  Object.defineProperty(input, "value", { configurable: true, get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, String(v ?? "").slice(0, MAX)); build(desc.get.call(this)); } });
+  const commit = (rebuild) => {
+    let v = readBox(); const cut = v.length > MAX; if (cut) v = v.slice(0, MAX);
+    const bad = cut || [...box.childNodes].some(n => n.nodeType !== 3 && n.nodeName !== "IMG") || /[\uF000-\uF085]/.test([...box.childNodes].filter(n => n.nodeType === 3).map(n => n.nodeValue).join(""));
+    desc.set.call(input, v);
+    if (bad || rebuild) { build(v); caretEnd(); }
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  };
+  box.addEventListener("beforeinput", e => {
+    if (e.inputType === "insertParagraph" || e.inputType === "insertLineBreak") { e.preventDefault(); return; }
+    if (e.inputType && e.inputType.startsWith("insert") && readBox().length >= MAX) {
+      const s = getSelection(); if (s.isCollapsed) e.preventDefault();
+    }
+  });
+  box.addEventListener("input", () => commit(false));
+  box.addEventListener("paste", e => { e.preventDefault(); const t = (e.clipboardData || window.clipboardData).getData("text").replace(/[\r\n]/g, ""); document.execCommand("insertText", false, t); });
+  box.addEventListener("drop", e => e.preventDefault());
+  box.addEventListener("keydown", e => { if (e.key === "Enter") e.preventDefault(); });
+  box.parentElement.parentElement.querySelector("label").addEventListener("click", () => box.focus());
+  let lastRange = null;
+  document.addEventListener("selectionchange", () => { const s = getSelection(); if (s.rangeCount && box.contains(s.anchorNode)) lastRange = s.getRangeAt(0).cloneRange(); });
+  function insertSymbol(ch){
+    if (readBox().length >= MAX) return;
+    box.focus();
+    const s = getSelection();
+    if (lastRange && box.contains(lastRange.startContainer)) { s.removeAllRanges(); s.addRange(lastRange); } else caretEnd();
+    const r = s.getRangeAt(0); r.deleteContents();
+    const im = mkImg(ch); r.insertNode(im); r.setStartAfter(im); r.collapse(true); s.removeAllRanges(); s.addRange(r);
+    commit(false);
+  }
+  // picker panel
+  const fill = (id, list, nitro) => { const g = document.getElementById(id); list.forEach(([c, n]) => { const b = document.createElement("button"); b.type = "button"; if (nitro) b.className = "nitro"; b.title = n.replace(/_/g, " ");
+    const im = new Image(); im.src = SRC(c); im.alt = n; b.appendChild(im); b.addEventListener("mousedown", e => e.preventDefault()); b.addEventListener("click", () => insertSymbol(String.fromCharCode(parseInt(c, 16)))); g.appendChild(b); }); };
+  fill("miiSymGridRanks", MII_SYMBOLS.filter(x => x[1].startsWith("nitro_rank")), true);
+  fill("miiSymGridGame", MII_SYMBOLS.filter(x => !x[1].startsWith("nitro_rank")), false);
+  btn.addEventListener("click", () => { const open = panel.hidden; panel.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
+  // builds without the symbol pictures simply hide the picker
+  const probe = new Image(); probe.onerror = () => { btn.hidden = true; panel.hidden = true; };
+  probe.src = SRC("F07D");
+  build(desc.get.call(input));
+})();
 
 let miiFullBody = false;
 const MII_ICON_BODY = '<svg class="ico" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><circle cx="12" cy="5" r="3"/><path d="M12 9c-3 0-5 1.2-5 3v3h2v7h2.2v-6h1.6v6H15v-7h2v-3c0-1.8-2-3-5-3z"/></svg>';
@@ -2134,7 +2254,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Custom launcher — version 1.0.0",
       creditsLicenseTitle:"License",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
       creditsProfileTitle:"Nitro profile",
       openDiscordLabel:"Open Discord",
@@ -2172,6 +2292,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Nose type", miiLblNoseSize:"Size", miiLblNoseVert:"Vertical",
       miiLblMouthStyle:"Mouth style", miiLblLipColorField:"Color", miiLblLipSize:"Size", miiLblLipVert:"Vertical",
       miiLblGlasses:"Glasses", miiLblGlassesColor:"Glasses color", miiLblMustache:"Mustache", miiLblBeard:"Beard", miiLblBeardColor:"Beard – Color",
+      miiLblGlassSize:"Size", miiLblGlassVert:"Vertical", miiLblMustSize:"Size", miiLblMustVert:"Vertical",
+      miiLblMole:"Mole", miiLblMoleSize:"Size", miiLblMoleVert:"Vertical", miiLblMoleHoriz:"Horizontal",
+      miiSymTitle:"Symbols", miiSymRanks:"Nitro ranks", miiSymGame:"Game symbols",
       miiLblCreator:"Creator name",
       launcherUpdateMsg:"A new launcher version is available.", launcherUpdateTitle:"Update available", launcherUpdateLater:"Later", launcherUpdateBtn:"Update!",
       launcherUpdateInstalling:"Downloading and installing — this window will restart automatically.",
@@ -2193,7 +2316,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Eigener Launcher — Version 1.0.0",
       creditsLicenseTitle:"Lizenz",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
       creditsProfileTitle:"Nitro-Profil",
       openDiscordLabel:"Discord öffnen",
@@ -2231,6 +2354,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Nasentyp", miiLblNoseSize:"Größe", miiLblNoseVert:"Vertikal",
       miiLblMouthStyle:"Mund", miiLblLipColorField:"Farbe", miiLblLipSize:"Größe", miiLblLipVert:"Vertikal",
       miiLblGlasses:"Brille", miiLblGlassesColor:"Brillenfarbe", miiLblMustache:"Schnurrbart", miiLblBeard:"Bart", miiLblBeardColor:"Bart – Farbe",
+      miiLblGlassSize:"Größe", miiLblGlassVert:"Vertikal", miiLblMustSize:"Größe", miiLblMustVert:"Vertikal",
+      miiLblMole:"Leberfleck", miiLblMoleSize:"Größe", miiLblMoleVert:"Vertikal", miiLblMoleHoriz:"Horizontal",
+      miiSymTitle:"Symbole", miiSymRanks:"Nitro-Ränge", miiSymGame:"Spielsymbole",
       miiLblCreator:"Ersteller-Name",
       launcherUpdateMsg:"Eine neue Launcher-Version ist verfügbar.", launcherUpdateTitle:"Update verfügbar", launcherUpdateLater:"Später", launcherUpdateBtn:"Aktualisieren!",
       launcherUpdateInstalling:"Wird heruntergeladen und installiert — dieses Fenster startet automatisch neu.",
@@ -2252,7 +2378,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Launcher personnalisé — version 1.0.0",
       creditsLicenseTitle:"Licence",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Communauté",
       creditsProfileTitle:"Profil Nitro",
       openDiscordLabel:"Ouvrir Discord",
@@ -2290,6 +2416,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Type de nez", miiLblNoseSize:"Taille", miiLblNoseVert:"Vertical",
       miiLblMouthStyle:"Bouche", miiLblLipColorField:"Couleur", miiLblLipSize:"Taille", miiLblLipVert:"Vertical",
       miiLblGlasses:"Lunettes", miiLblGlassesColor:"Couleur des lunettes", miiLblMustache:"Moustache", miiLblBeard:"Barbe", miiLblBeardColor:"Barbe – Couleur",
+      miiLblGlassSize:"Taille", miiLblGlassVert:"Vertical", miiLblMustSize:"Taille", miiLblMustVert:"Vertical",
+      miiLblMole:"Grain de beauté", miiLblMoleSize:"Taille", miiLblMoleVert:"Vertical", miiLblMoleHoriz:"Horizontal",
+      miiSymTitle:"Symboles", miiSymRanks:"Rangs Nitro", miiSymGame:"Symboles du jeu",
       miiLblCreator:"Nom du créateur",
       launcherUpdateMsg:"Une nouvelle version du launcher est disponible.", launcherUpdateTitle:"Mise à jour disponible", launcherUpdateLater:"Plus tard", launcherUpdateBtn:"Mettre à jour !",
       launcherUpdateInstalling:"Téléchargement et installation en cours — cette fenêtre redémarrera automatiquement.",
@@ -2311,7 +2440,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Launcher personalizado — versión 1.0.0",
       creditsLicenseTitle:"Licencia",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Comunidad",
       creditsProfileTitle:"Perfil de Nitro",
       openDiscordLabel:"Abrir Discord",
@@ -2349,6 +2478,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Tipo de nariz", miiLblNoseSize:"Tamaño", miiLblNoseVert:"Vertical",
       miiLblMouthStyle:"Boca", miiLblLipColorField:"Color", miiLblLipSize:"Tamaño", miiLblLipVert:"Vertical",
       miiLblGlasses:"Gafas", miiLblGlassesColor:"Color de gafas", miiLblMustache:"Bigote", miiLblBeard:"Barba", miiLblBeardColor:"Barba – Color",
+      miiLblGlassSize:"Tamaño", miiLblGlassVert:"Vertical", miiLblMustSize:"Tamaño", miiLblMustVert:"Vertical",
+      miiLblMole:"Lunar", miiLblMoleSize:"Tamaño", miiLblMoleVert:"Vertical", miiLblMoleHoriz:"Horizontal",
+      miiSymTitle:"Símbolos", miiSymRanks:"Rangos Nitro", miiSymGame:"Símbolos del juego",
       miiLblCreator:"Nombre del creador",
       launcherUpdateMsg:"Hay una nueva versión del launcher disponible.", launcherUpdateTitle:"Actualización disponible", launcherUpdateLater:"Más tarde", launcherUpdateBtn:"¡Actualizar!",
       launcherUpdateInstalling:"Descargando e instalando — esta ventana se reiniciará automáticamente.",
@@ -2370,7 +2502,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Launcher personalizzato — versione 1.0.0",
       creditsLicenseTitle:"Licenza",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
       creditsProfileTitle:"Profilo Nitro",
       openDiscordLabel:"Apri Discord",
@@ -2408,6 +2540,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Tipo di naso", miiLblNoseSize:"Dimensione", miiLblNoseVert:"Verticale",
       miiLblMouthStyle:"Bocca", miiLblLipColorField:"Colore", miiLblLipSize:"Dimensione", miiLblLipVert:"Verticale",
       miiLblGlasses:"Occhiali", miiLblGlassesColor:"Colore occhiali", miiLblMustache:"Baffi", miiLblBeard:"Barba", miiLblBeardColor:"Barba – Colore",
+      miiLblGlassSize:"Dimensione", miiLblGlassVert:"Verticale", miiLblMustSize:"Dimensione", miiLblMustVert:"Verticale",
+      miiLblMole:"Neo", miiLblMoleSize:"Dimensione", miiLblMoleVert:"Verticale", miiLblMoleHoriz:"Orizzontale",
+      miiSymTitle:"Simboli", miiSymRanks:"Ranghi Nitro", miiSymGame:"Simboli del gioco",
       miiLblCreator:"Nome del creatore",
       launcherUpdateMsg:"È disponibile una nuova versione del launcher.", launcherUpdateTitle:"Aggiornamento disponibile", launcherUpdateLater:"Più tardi", launcherUpdateBtn:"Aggiorna!",
       launcherUpdateInstalling:"Download e installazione in corso — questa finestra si riavvierà automaticamente.",
@@ -2429,7 +2564,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Launcher personalizado — versão 1.0.0",
       creditsLicenseTitle:"Licença",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Comunidade",
       creditsProfileTitle:"Perfil Nitro",
       openDiscordLabel:"Abrir Discord",
@@ -2467,6 +2602,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Tipo de nariz", miiLblNoseSize:"Tamanho", miiLblNoseVert:"Vertical",
       miiLblMouthStyle:"Boca", miiLblLipColorField:"Cor", miiLblLipSize:"Tamanho", miiLblLipVert:"Vertical",
       miiLblGlasses:"Óculos", miiLblGlassesColor:"Cor dos óculos", miiLblMustache:"Bigode", miiLblBeard:"Barba", miiLblBeardColor:"Barba – Cor",
+      miiLblGlassSize:"Tamanho", miiLblGlassVert:"Vertical", miiLblMustSize:"Tamanho", miiLblMustVert:"Vertical",
+      miiLblMole:"Pinta", miiLblMoleSize:"Tamanho", miiLblMoleVert:"Vertical", miiLblMoleHoriz:"Horizontal",
+      miiSymTitle:"Símbolos", miiSymRanks:"Ranks Nitro", miiSymGame:"Símbolos do jogo",
       miiLblCreator:"Nome do criador",
       launcherUpdateMsg:"Uma nova versão do launcher está disponível.", launcherUpdateTitle:"Atualização disponível", launcherUpdateLater:"Mais tarde", launcherUpdateBtn:"Atualizar!",
       launcherUpdateInstalling:"Baixando e instalando — esta janela será reiniciada automaticamente.",
@@ -2488,7 +2626,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Eigen launcher — versie 1.0.0",
       creditsLicenseTitle:"Licentie",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
       creditsProfileTitle:"Nitro-profiel",
       openDiscordLabel:"Discord openen",
@@ -2526,6 +2664,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Neustype", miiLblNoseSize:"Grootte", miiLblNoseVert:"Verticaal",
       miiLblMouthStyle:"Mond", miiLblLipColorField:"Kleur", miiLblLipSize:"Grootte", miiLblLipVert:"Verticaal",
       miiLblGlasses:"Bril", miiLblGlassesColor:"Brilkleur", miiLblMustache:"Snor", miiLblBeard:"Baard", miiLblBeardColor:"Baard – Kleur",
+      miiLblGlassSize:"Grootte", miiLblGlassVert:"Verticaal", miiLblMustSize:"Grootte", miiLblMustVert:"Verticaal",
+      miiLblMole:"Moedervlek", miiLblMoleSize:"Grootte", miiLblMoleVert:"Verticaal", miiLblMoleHoriz:"Horizontaal",
+      miiSymTitle:"Symbolen", miiSymRanks:"Nitro-rangen", miiSymGame:"Spelsymbolen",
       miiLblCreator:"Naam maker",
       launcherUpdateMsg:"Er is een nieuwe launcherversie beschikbaar.", launcherUpdateTitle:"Update beschikbaar", launcherUpdateLater:"Later", launcherUpdateBtn:"Updaten!",
       launcherUpdateInstalling:"Downloaden en installeren — dit venster herstart automatisch.",
@@ -2547,7 +2688,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Własny launcher — wersja 1.0.0",
       creditsLicenseTitle:"Licencja",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Społeczność",
       creditsProfileTitle:"Profil Nitro",
       openDiscordLabel:"Otwórz Discord",
@@ -2585,6 +2726,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Typ nosa", miiLblNoseSize:"Rozmiar", miiLblNoseVert:"Pionowo",
       miiLblMouthStyle:"Usta", miiLblLipColorField:"Kolor", miiLblLipSize:"Rozmiar", miiLblLipVert:"Pionowo",
       miiLblGlasses:"Okulary", miiLblGlassesColor:"Kolor okularów", miiLblMustache:"Wąsy", miiLblBeard:"Broda", miiLblBeardColor:"Broda – Kolor",
+      miiLblGlassSize:"Rozmiar", miiLblGlassVert:"Pion", miiLblMustSize:"Rozmiar", miiLblMustVert:"Pion",
+      miiLblMole:"Pieprzyk", miiLblMoleSize:"Rozmiar", miiLblMoleVert:"Pion", miiLblMoleHoriz:"Poziom",
+      miiSymTitle:"Symbole", miiSymRanks:"Rangi Nitro", miiSymGame:"Symbole z gry",
       miiLblCreator:"Nazwa twórcy",
       launcherUpdateMsg:"Dostępna jest nowa wersja launchera.", launcherUpdateTitle:"Dostępna aktualizacja", launcherUpdateLater:"Później", launcherUpdateBtn:"Zaktualizuj!",
       launcherUpdateInstalling:"Pobieranie i instalowanie — to okno uruchomi się ponownie automatycznie.",
@@ -2606,7 +2750,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Özel launcher — sürüm 1.0.0",
       creditsLicenseTitle:"Lisans",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Topluluk",
       creditsProfileTitle:"Nitro profili",
       openDiscordLabel:"Discord'u Aç",
@@ -2644,6 +2788,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Burun tipi", miiLblNoseSize:"Boyut", miiLblNoseVert:"Dikey",
       miiLblMouthStyle:"Ağız stili", miiLblLipColorField:"Renk", miiLblLipSize:"Boyut", miiLblLipVert:"Dikey",
       miiLblGlasses:"Gözlük", miiLblGlassesColor:"Gözlük rengi", miiLblMustache:"Bıyık", miiLblBeard:"Sakal", miiLblBeardColor:"Sakal – Renk",
+      miiLblGlassSize:"Boyut", miiLblGlassVert:"Dikey", miiLblMustSize:"Boyut", miiLblMustVert:"Dikey",
+      miiLblMole:"Ben", miiLblMoleSize:"Boyut", miiLblMoleVert:"Dikey", miiLblMoleHoriz:"Yatay",
+      miiSymTitle:"Semboller", miiSymRanks:"Nitro rütbeleri", miiSymGame:"Oyun sembolleri",
       miiLblCreator:"Oluşturan adı",
       launcherUpdateMsg:"Yeni bir launcher sürümü mevcut.", launcherUpdateTitle:"Güncelleme mevcut", launcherUpdateLater:"Sonra", launcherUpdateBtn:"Güncelle!",
       launcherUpdateInstalling:"İndiriliyor ve kuruluyor — bu pencere otomatik olarak yeniden başlayacak.",
@@ -2665,7 +2812,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Собственный лаунчер — версия 1.0.0",
       creditsLicenseTitle:"Лицензия",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Сообщество",
       creditsProfileTitle:"Профиль Nitro",
       openDiscordLabel:"Открыть Discord",
@@ -2703,6 +2850,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Тип носа", miiLblNoseSize:"Размер", miiLblNoseVert:"Вертикаль",
       miiLblMouthStyle:"Рот", miiLblLipColorField:"Цвет", miiLblLipSize:"Размер", miiLblLipVert:"Вертикаль",
       miiLblGlasses:"Очки", miiLblGlassesColor:"Цвет очков", miiLblMustache:"Усы", miiLblBeard:"Борода", miiLblBeardColor:"Борода – Цвет",
+      miiLblGlassSize:"Размер", miiLblGlassVert:"Вертикаль", miiLblMustSize:"Размер", miiLblMustVert:"Вертикаль",
+      miiLblMole:"Родинка", miiLblMoleSize:"Размер", miiLblMoleVert:"Вертикаль", miiLblMoleHoriz:"Горизонталь",
+      miiSymTitle:"Символы", miiSymRanks:"Ранги Nitro", miiSymGame:"Символы игры",
       miiLblCreator:"Имя создателя",
       launcherUpdateMsg:"Доступна новая версия лаунчера.", launcherUpdateTitle:"Доступно обновление", launcherUpdateLater:"Позже", launcherUpdateBtn:"Обновить!",
       launcherUpdateInstalling:"Загрузка и установка — это окно перезапустится автоматически.",
@@ -2724,7 +2874,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"カスタムランチャー — バージョン 1.0.0",
       creditsLicenseTitle:"ライセンス",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"コミュニティ",
       creditsProfileTitle:"Nitroプロファイル",
       openDiscordLabel:"Discordを開く",
@@ -2762,6 +2912,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"鼻のタイプ", miiLblNoseSize:"大きさ", miiLblNoseVert:"縦位置",
       miiLblMouthStyle:"口", miiLblLipColorField:"色", miiLblLipSize:"大きさ", miiLblLipVert:"縦位置",
       miiLblGlasses:"メガネ", miiLblGlassesColor:"メガネの色", miiLblMustache:"口ひげ", miiLblBeard:"ひげ", miiLblBeardColor:"ひげ – 色",
+      miiLblGlassSize:"大きさ", miiLblGlassVert:"上下", miiLblMustSize:"大きさ", miiLblMustVert:"上下",
+      miiLblMole:"ほくろ", miiLblMoleSize:"大きさ", miiLblMoleVert:"上下", miiLblMoleHoriz:"左右",
+      miiSymTitle:"シンボル", miiSymRanks:"Nitroランク", miiSymGame:"ゲームのシンボル",
       miiLblCreator:"作成者名",
       launcherUpdateMsg:"新しいランチャーのバージョンが利用可能です。", launcherUpdateTitle:"アップデートがあります", launcherUpdateLater:"あとで", launcherUpdateBtn:"更新する！",
       launcherUpdateInstalling:"ダウンロードしてインストール中です — このウィンドウは自動的に再起動します。",
@@ -2783,7 +2936,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"커스텀 런처 — 버전 1.0.0",
       creditsLicenseTitle:"라이선스",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"커뮤니티",
       creditsProfileTitle:"Nitro 프로필",
       openDiscordLabel:"Discord 열기",
@@ -2821,6 +2974,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"코 유형", miiLblNoseSize:"크기", miiLblNoseVert:"수직",
       miiLblMouthStyle:"입 스타일", miiLblLipColorField:"색상", miiLblLipSize:"크기", miiLblLipVert:"수직",
       miiLblGlasses:"안경", miiLblGlassesColor:"안경 색상", miiLblMustache:"콧수염", miiLblBeard:"턱수염", miiLblBeardColor:"턱수염 – 색상",
+      miiLblGlassSize:"크기", miiLblGlassVert:"세로", miiLblMustSize:"크기", miiLblMustVert:"세로",
+      miiLblMole:"점", miiLblMoleSize:"크기", miiLblMoleVert:"세로", miiLblMoleHoriz:"가로",
+      miiSymTitle:"기호", miiSymRanks:"Nitro 랭크", miiSymGame:"게임 기호",
       miiLblCreator:"작성자 이름",
       launcherUpdateMsg:"새 런처 버전을 사용할 수 있습니다.", launcherUpdateTitle:"업데이트 가능", launcherUpdateLater:"나중에", launcherUpdateBtn:"업데이트!",
       launcherUpdateInstalling:"다운로드 및 설치 중입니다 — 이 창은 자동으로 재시작됩니다.",
@@ -2842,7 +2998,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"自定义启动器 — 版本 1.0.0",
       creditsLicenseTitle:"许可证",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"社区",
       creditsProfileTitle:"Nitro 配置文件",
       openDiscordLabel:"打开 Discord",
@@ -2880,6 +3036,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"鼻型", miiLblNoseSize:"大小", miiLblNoseVert:"垂直位置",
       miiLblMouthStyle:"嘴型", miiLblLipColorField:"颜色", miiLblLipSize:"大小", miiLblLipVert:"垂直位置",
       miiLblGlasses:"眼镜", miiLblGlassesColor:"眼镜颜色", miiLblMustache:"胡子", miiLblBeard:"胡须", miiLblBeardColor:"胡须 – 颜色",
+      miiLblGlassSize:"大小", miiLblGlassVert:"垂直", miiLblMustSize:"大小", miiLblMustVert:"垂直",
+      miiLblMole:"痣", miiLblMoleSize:"大小", miiLblMoleVert:"垂直", miiLblMoleHoriz:"水平",
+      miiSymTitle:"符号", miiSymRanks:"Nitro 等级", miiSymGame:"游戏符号",
       miiLblCreator:"创建者名称",
       launcherUpdateMsg:"有新的启动器版本可用。", launcherUpdateTitle:"有可用更新", launcherUpdateLater:"稍后", launcherUpdateBtn:"更新！",
       launcherUpdateInstalling:"正在下载并安装——此窗口将自动重启。",
@@ -2901,7 +3060,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"مشغّل مخصص — الإصدار 1.0.0",
       creditsLicenseTitle:"الترخيص",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"المجتمع",
       creditsProfileTitle:"ملف Nitro الشخصي",
       openDiscordLabel:"افتح Discord",
@@ -2939,6 +3098,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"نوع الأنف", miiLblNoseSize:"الحجم", miiLblNoseVert:"عمودي",
       miiLblMouthStyle:"الفم", miiLblLipColorField:"اللون", miiLblLipSize:"الحجم", miiLblLipVert:"عمودي",
       miiLblGlasses:"النظارات", miiLblGlassesColor:"لون النظارات", miiLblMustache:"الشنب", miiLblBeard:"اللحية", miiLblBeardColor:"اللحية – اللون",
+      miiLblGlassSize:"الحجم", miiLblGlassVert:"عمودي", miiLblMustSize:"الحجم", miiLblMustVert:"عمودي",
+      miiLblMole:"الشامة", miiLblMoleSize:"الحجم", miiLblMoleVert:"عمودي", miiLblMoleHoriz:"أفقي",
+      miiSymTitle:"رموز", miiSymRanks:"رتب Nitro", miiSymGame:"رموز اللعبة",
       miiLblCreator:"اسم المنشئ",
       launcherUpdateMsg:"يتوفر إصدار جديد من المشغّل.", launcherUpdateTitle:"تحديث متاح", launcherUpdateLater:"لاحقًا", launcherUpdateBtn:"تحديث!",
       launcherUpdateInstalling:"جاري التنزيل والتثبيت — ستُعاد تشغيل هذه النافذة تلقائيًا.",
@@ -2960,7 +3122,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Egen launcher — version 1.0.0",
       creditsLicenseTitle:"Licens",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
       creditsProfileTitle:"Nitro-profil",
       openDiscordLabel:"Öppna Discord",
@@ -2998,6 +3160,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Näsa-typ", miiLblNoseSize:"Storlek", miiLblNoseVert:"Vertikal",
       miiLblMouthStyle:"Mun", miiLblLipColorField:"Färg", miiLblLipSize:"Storlek", miiLblLipVert:"Vertikal",
       miiLblGlasses:"Glasögon", miiLblGlassesColor:"Glasögonfärg", miiLblMustache:"Mustasch", miiLblBeard:"Skägg", miiLblBeardColor:"Skägg – Färg",
+      miiLblGlassSize:"Storlek", miiLblGlassVert:"Vertikalt", miiLblMustSize:"Storlek", miiLblMustVert:"Vertikalt",
+      miiLblMole:"Födelsemärke", miiLblMoleSize:"Storlek", miiLblMoleVert:"Vertikalt", miiLblMoleHoriz:"Horisontellt",
+      miiSymTitle:"Symboler", miiSymRanks:"Nitro-ranker", miiSymGame:"Spelsymboler",
       miiLblCreator:"Skaparens namn",
       launcherUpdateMsg:"En ny launcher-version är tillgänglig.", launcherUpdateTitle:"Uppdatering tillgänglig", launcherUpdateLater:"Senare", launcherUpdateBtn:"Uppdatera!",
       launcherUpdateInstalling:"Laddar ner och installerar — det här fönstret startar om automatiskt.",
@@ -3019,7 +3184,7 @@ function toast(msg, isError, sticky) {
       creditsAppName:"Mario Kart Nitro",
       creditsAppDesc:"Oma käynnistin — versio 1.0.0",
       creditsLicenseTitle:"Lisenssi",
-      creditsLicenseText:"GNU GPL v3.0",
+      creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Yhteisö",
       creditsProfileTitle:"Nitro-profiili",
       openDiscordLabel:"Avaa Discord",
@@ -3057,6 +3222,9 @@ function toast(msg, isError, sticky) {
       miiLblNoseType:"Nenän tyyppi", miiLblNoseSize:"Koko", miiLblNoseVert:"Pysty",
       miiLblMouthStyle:"Suu", miiLblLipColorField:"Väri", miiLblLipSize:"Koko", miiLblLipVert:"Pysty",
       miiLblGlasses:"Silmälasit", miiLblGlassesColor:"Silmälasien väri", miiLblMustache:"Viikset", miiLblBeard:"Parta", miiLblBeardColor:"Parta – Väri",
+      miiLblGlassSize:"Koko", miiLblGlassVert:"Pysty", miiLblMustSize:"Koko", miiLblMustVert:"Pysty",
+      miiLblMole:"Luomi", miiLblMoleSize:"Koko", miiLblMoleVert:"Pysty", miiLblMoleHoriz:"Vaaka",
+      miiSymTitle:"Symbolit", miiSymRanks:"Nitro-tasot", miiSymGame:"Pelisymbolit",
       miiLblCreator:"Luojan nimi",
       launcherUpdateMsg:"Uusi launcher-versio on saatavilla.", launcherUpdateTitle:"Päivitys saatavilla", launcherUpdateLater:"Myöhemmin", launcherUpdateBtn:"Päivitä!",
       launcherUpdateInstalling:"Ladataan ja asennetaan — tämä ikkuna käynnistyy automaattisesti uudelleen.",
