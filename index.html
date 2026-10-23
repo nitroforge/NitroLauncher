@@ -938,6 +938,12 @@ async function ensureFFLResource() {
     );
   }
 
+  if (result && !result.ok && window.pywebview.api.extract_mii_resource) {
+    setMiiStatus("Getting Mii resources from your game...");
+    try { await window.pywebview.api.extract_mii_resource(); } catch (e) {}
+    result = await window.pywebview.api.get_ffl_resource();
+  }
+
   fflResourceState = result;
 
   if (!result) {

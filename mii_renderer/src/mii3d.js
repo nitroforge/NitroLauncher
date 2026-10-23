@@ -12,16 +12,40 @@ export function makeLut(b64){
   t.magFilter=THREE.LinearFilter; t.minFilter=THREE.LinearFilter; t.needsUpdate=true; t.flipY=false;
   return t;
 }
+export const DXU={value:0};
+const DXF=`uniform float uDx;
+vec3 dx(vec3 c, vec3 n, float kind){ if(uDx<0.001) return c;
+ // glossy "bubble" look: only ADDS light (colours never get darker than the original shading)
+ vec3 V=vec3(0.0,0.0,1.0); vec3 R=2.0*n.z*n-V;
+ float fr=pow(1.0-clamp(n.z,0.0,1.0),2.4);
+ float gl=kind>1.5?0.55:(kind>0.5?0.85:1.0);
+ // soft box (top left) and a smaller cool box (lower right) mirrored on the surface
+ float a1=dot(R,normalize(vec3(-0.50,0.62,0.60)));
+ float soft=smoothstep(0.70,0.93,a1);
+ float core=smoothstep(0.965,0.993,a1);
+ float a2=dot(R,normalize(vec3(0.62,-0.30,0.72)));
+ float soft2=smoothstep(0.82,0.96,a2);
+ // sky/ground reflection band
+ float sky=smoothstep(0.1,0.9,R.y)*0.06;
+ vec3 refl=vec3(1.0,0.98,0.95)*(soft*0.18+core*0.50*(kind>1.5?1.0:0.0))+vec3(0.60,0.78,1.0)*soft2*0.14+vec3(0.75,0.85,1.0)*sky;
+ // edge light (fresnel), cool on the right, warm on the left
+ vec3 rim=(vec3(0.55,0.75,1.0)*max(n.x+0.30,0.0)+vec3(1.0,0.70,0.45)*max(-n.x,0.0)*0.7)*fr*0.38;
+ // warm bounce from below
+ vec3 bounce=vec3(0.10,0.06,0.04)*clamp(-n.y,0.0,1.0)*(kind<0.5?1.0:0.7);
+ float lum=dot(c,vec3(0.299,0.587,0.114)); refl*=(1.0-0.55*lum);
+ float km=kind<0.5?1.0:(kind<1.5?0.0:3.0); // skin 15%, hair 0%, cloth 45% (uDx is the 15% base)
+ return clamp(c+((refl+rim)*gl+bounce)*uDx*km,0.0,1.0); }
+`;
 const VS=`varying vec3 vN; varying vec2 vUv; void main(){ vN=normalize(normalMatrix*normal); vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`;
-const FS=`precision highp float; uniform sampler2D lut; uniform vec3 albedo; uniform sampler2D map; uniform bool useMap; varying vec3 vN; varying vec2 vUv;
+const FS=`precision highp float; ${DXF} uniform float kindU; uniform sampler2D lut; uniform vec3 albedo; uniform sampler2D map; uniform bool useMap; varying vec3 vN; varying vec2 vUv;
 void main(){ vec3 n=normalize(vN); if(!gl_FrontFacing) n=-n; vec2 q=n.xy*0.5+0.5; vec4 t=texture2D(lut,q);
  vec3 L=t.rgb*(320.0/255.0); float Sp=(t.a*96.0-32.0)/255.0;
  vec3 base=albedo; float a=1.0;
  if(useMap){ vec4 m=texture2D(map,vUv); base=mix(albedo,m.rgb,m.a); }
- gl_FragColor=vec4(clamp(base*L+vec3(Sp),0.0,1.0),1.0); }`;
-export function litMaterial(lut,albedo,map){
+ gl_FragColor=vec4(dx(clamp(base*L+vec3(Sp),0.0,1.0),n,kindU),1.0); }`;
+export function litMaterial(lut,albedo,map,kind=0){
   return new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:FS,side:THREE.DoubleSide,
-    uniforms:{lut:{value:lut},albedo:{value:new THREE.Vector3(...albedo)},map:{value:map||null},useMap:{value:!!map}}});
+    uniforms:{uDx:DXU,kindU:{value:kind},lut:{value:lut},albedo:{value:new THREE.Vector3(...albedo)},map:{value:map||null},useMap:{value:!!map}}});
 }
 // face-feature layer (eyes, brows, mouth ...): nearly flat colour, mild normal-dependent gain F(n)
 export const FEAT_GAIN=1.12;
@@ -53,11 +77,11 @@ export function makeRenderer(size){
 }
 // hair: two LUTs (dome / fringe class chosen by vertex colour R), albedo relative to hair colour 0
 const VSH=`attribute vec4 vcol; varying vec3 vN; varying float vCls; void main(){ vN=normalize(normalMatrix*normal); vCls=vcol.r>0.5?1.0:0.0; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`;
-const FSH=`precision highp float; uniform sampler2D lutA; uniform sampler2D lutB; uniform vec3 albedo; varying vec3 vN; varying float vCls;
+const FSH=`precision highp float; ${DXF} uniform sampler2D lutA; uniform sampler2D lutB; uniform vec3 albedo; varying vec3 vN; varying float vCls;
 void main(){ vec3 n=normalize(vN); if(!gl_FrontFacing) n=-n; vec2 q=n.xy*0.5+0.5; vec4 t=vCls>0.5?texture2D(lutB,q):texture2D(lutA,q);
- vec3 L=t.rgb*(320.0/255.0); float Sp=(t.a*96.0-32.0)/255.0; gl_FragColor=vec4(clamp(albedo*L+vec3(Sp),0.0,1.0),1.0); }`;
+ vec3 L=t.rgb*(320.0/255.0); float Sp=(t.a*96.0-32.0)/255.0; gl_FragColor=vec4(dx(clamp(albedo*L+vec3(Sp),0.0,1.0),n,1.0),1.0); }`;
 export function hairMaterial(lutA,lutB,albedo){
-  return new THREE.ShaderMaterial({vertexShader:VSH,fragmentShader:FSH,side:THREE.DoubleSide,uniforms:{lutA:{value:lutA},lutB:{value:lutB},albedo:{value:new THREE.Vector3(...albedo)}}});
+  return new THREE.ShaderMaterial({vertexShader:VSH,fragmentShader:FSH,side:THREE.DoubleSide,uniforms:{uDx:DXU,lutA:{value:lutA},lutB:{value:lutB},albedo:{value:new THREE.Vector3(...albedo)}}});
 }
 export const HAIR_REL=[[0.344,0.371,0.371],[1.276,0.875,0.623],[1.684,0.749,0.529],[2.15,1.284,0.686],[2.092,2.258,2.383],[1.48,1.346,0.623],[2.325,1.755,0.749],[3.372,2.887,1.535]];
 
@@ -113,12 +137,12 @@ const FSHN=`precision highp float; varying vec3 vN; varying float vCls; void mai
 export function hairNormalMaterial(){ return new THREE.ShaderMaterial({vertexShader:VSH,fragmentShader:FSHN,side:THREE.DoubleSide}); }
 
 // cap / hat cloth shaded by the body (cloth) LUT: colour * pattern * L(n) + Sp(n); underside is darker
-const FSC2=`precision highp float; uniform sampler2D lut; uniform sampler2D map; uniform vec3 col; varying vec3 vN; varying vec2 vUv;
+const FSC2=`precision highp float; ${DXF} uniform sampler2D lut; uniform sampler2D map; uniform vec3 col; varying vec3 vN; varying vec2 vUv;
 void main(){ vec3 n=normalize(vN); if(!gl_FrontFacing) n=-n; vec4 t=texture2D(lut,n.xy*0.5+0.5);
  vec3 L=t.rgb*(320.0/255.0); float Sp=(t.a*96.0-32.0)/255.0;
- float p=texture2D(map,vUv).r; gl_FragColor=vec4(clamp(col*p*L+vec3(Sp),0.0,1.0),1.0); }`;
+ float p=texture2D(map,vUv).r; gl_FragColor=vec4(dx(clamp(col*p*L+vec3(Sp),0.0,1.0),n,2.0),1.0); }`;
 export function capMaterial2(lut,rgb255,map){
-  return new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:FSC2,side:THREE.DoubleSide,uniforms:{lut:{value:lut},map:{value:map},col:{value:new THREE.Vector3(rgb255[0]/255,rgb255[1]/255,rgb255[2]/255)}}});
+  return new THREE.ShaderMaterial({vertexShader:VS,fragmentShader:FSC2,side:THREE.DoubleSide,uniforms:{uDx:DXU,lut:{value:lut},map:{value:map},col:{value:new THREE.Vector3(rgb255[0]/255,rgb255[1]/255,rgb255[2]/255)}}});
 }
 
 // debug: cap normal + pattern -> colour

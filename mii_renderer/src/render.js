@@ -1,5 +1,6 @@
 import * as THREE from './node_modules/three/build/three.module.js';
 import {Res} from './ffra.js';
+import {WiiRes,isWiiResource} from './wii.js';
 import {shapeGeometry} from './geo.js';
 import {glassMaterial,FEAT_GAIN,makeLut,hairMaterial,HAIR_REL,litMaterial,maskMaterial,decalMaterial,makeCamera,makeCameraC,bodyMaterial,capMaterial2,capNormalMaterial,normalMaterial,uvMaterial,hairNormalMaterial,capMaterial,lensMaterial,makeRenderer,SKIN_REL} from './mii3d.js';
 import {buildBody,fullCamera,FAV,PANTS} from './body.js';
@@ -14,8 +15,10 @@ function texCanvas(t,fn){
   const bpp=[1,2,4][t.fmt];
   for(let y=0;y<t.h;y++)for(let xx=0;xx<t.w;xx++){const p=(y*t.w+xx)*bpp; const r=t.data[p],g=bpp>1?t.data[p+1]:0,b=bpp>2?t.data[p+2]:0,a=bpp>3?t.data[p+3]:255;
     const o=fn(r,g,b,a); const q=(y*t.w+xx)*4; im.data[q]=o[0];im.data[q+1]=o[1];im.data[q+2]=o[2];im.data[q+3]=o[3];}
-  x.putImageData(im,0,0); return c;
+  x.putImageData(im,0,0); if(t.ds>1) c._ds=t.ds; return c;
 }
+// pictures that are enlarged more than the standard 4x (Wii file) are drawn at their nominal size: the extra pixels only add sharpness
+if(typeof CanvasRenderingContext2D!=='undefined' && !CanvasRenderingContext2D.prototype.__nfDs){ const _di=CanvasRenderingContext2D.prototype.drawImage; CanvasRenderingContext2D.prototype.drawImage=function(im,...a){ if(im&&im._ds>1&&a.length===2){ const d=im._ds; return _di.call(this,im,a[0]/d,a[1]/d,im.width/d,im.height/d); } return _di.call(this,im,...a); }; CanvasRenderingContext2D.prototype.__nfDs=true; }
 function drawPart(ctx,img,px,py,hx,hy,scale,rotDeg,side){
   const k=M/512; ctx.save(); if(side<0){ctx.translate(512*k,0); ctx.scale(-1,1);}
   ctx.translate(px*k,py*k); ctx.rotate(rotDeg*Math.PI/180); ctx.scale(scale*k,scale*k); ctx.translate(hx,hy);
@@ -25,7 +28,8 @@ const fetchText=async u=>await (await fetch(u,{cache:'force-cache'})).text();
 
 let _gl=null; function sharedGL(){ return _gl||(_gl=makeRenderer(512)); }
 export async function createRenderer(resBuf, base='./', extra={}){
-  const res=new Res(resBuf);
+  const _u8=resBuf instanceof Uint8Array?resBuf:new Uint8Array(resBuf);
+  const isWii=isWiiResource(_u8); const res=isWii?new WiiRes(_u8):new Res(_u8);
   const L=typeof base==='object'?base:{skin:await fetchText(base+'lut_skin.b64'),feat:await fetchText(base+'lut_feat.b64'),hair0:await fetchText(base+'lut_hair0.b64'),hair1:await fetchText(base+'lut_hair1.b64'),body:await fetchText(base+'lut_body.b64').catch(()=>null),cap:await fetchText(base+'lut_cap.b64').catch(()=>null)};
   const lutSkin=makeLut(L.skin); const lutFeat=makeLut(L.feat); const lutBody=L.body?makeLut(L.body):null; const lutCap=L.cap?makeLut(L.cap):null;
   const lutH0=makeLut(L.hair0), lutH1=makeLut(L.hair1);
@@ -37,7 +41,7 @@ export async function createRenderer(resBuf, base='./', extra={}){
   const getGLB=async(g)=>{ if(glbCache[g]!==undefined) return glbCache[g]; let r=null; try{ const u=(extra.glb&&extra.glb[g])||((typeof base==='string'?base:'./')+(g===1?'miiFemaleBody.glb':'miiMaleBody.glb')); const b=await (await fetch(u,{cache:'force-cache'})).arrayBuffer(); r=prepareBody(parseGLB(b)); }catch(e){ r=null; } glbCache[g]=r; return r; };
   const rdr=sharedGL();
   async function render(P,opts={}){
-    const SIZE=opts.size||512; M=Math.min(2048,opts.maskRes||1024); rdr.setSize(SIZE,SIZE,false);
+    const SIZE=opts.size||512; if(isWii) res.hq=SIZE>=1000; M=Math.min(2048,opts.maskRes||1024); rdr.setSize(SIZE,SIZE,false);
     const sc=new THREE.Scene(); const sk=SKIN_REL[P.faceColor]||SKIN_REL[0];
     const col=opts.colors; // colour tables (rgb 0..255 arrays)
     // ---- mask ----
@@ -68,21 +72,25 @@ export async function createRenderer(resBuf, base='./', extra={}){
     const skinMat=litMaterial(lutSkin,sk);
     const fg=await shape('faceline',P.faceType); const FX=fg.userData.extra; const V1=[FX[6],FX[7],FX[8]],V2=[FX[9],FX[10],FX[11]],V3=[FX[12],FX[13],FX[14]];
     const FEAT_PAIR=[[0,0],[0,1],[0,5],[0,8],[4,0],[1,0],[2,0],[6,0],[7,0],[0,9],[8,0],[10,0]]; // wii 'feature' -> [wrinkle faceline tex, makeup facemake tex]
-    let faceMat=skinMat; { const [wr,mk]=FEAT_PAIR[P.feature]||[0,0];
+    let faceMat=skinMat;
+    if(isWii){ if(P.feature&&opts.featureOverlay!==false){ const SR=Math.round((sk[0]<=1.001?sk[0]*255:sk[0])); const ft=res.feature(P.feature,SR);
+        if(ft){ const cv=document.createElement('canvas'); cv.width=256; cv.height=512; const x=cv.getContext('2d'); const im=texCanvas(ft,(r,g,b,a)=>[r,g,b,a]); x.save(); x.translate(opts.flX??3,opts.flY??1.5); x.scale(opts.flS??.99,opts.flS??.99); x.drawImage(im,0,0); x.restore();
+          const tx=new THREE.CanvasTexture(cv); tx.flipY=false; tx.colorSpace=THREE.NoColorSpace; tx.wrapS=THREE.MirroredRepeatWrapping; faceMat=litMaterial(lutSkin,sk,tx); } } }
+    else { const [wr,mk]=FEAT_PAIR[P.feature]||[0,0];
       if(opts.featureOverlay!==false&&(wr!==0||mk!==0||opts.flMk||opts.flWr)){ const cv=document.createElement('canvas'); cv.width=256; cv.height=512; const x=cv.getContext('2d');
         const fm=opts.flMk??mk, fw=opts.flWr??wr; const put=(img)=>{ for(const sg of (opts.flMirror==='only'?[-1]:opts.flMirror===true?[1,-1]:[1])){ x.save(); if(sg<0){x.translate(256+(opts.flMx??0),0); x.scale(-1,1);} x.translate(opts.flX??3,opts.flY??1.5); x.scale(opts.flS??.99,opts.flS??.99); x.drawImage(img,0,0); x.restore(); } };
         const MKG={1:.45,2:.5,3:.45,4:.45,5:1.0,6:.5,7:.5,8:.9,9:.78,10:.78}, SR=Math.round((sk[0]<=1.001?sk[0]*255:sk[0]));
         if(fm){ const t=await tex('facemake',fm); const gk=(opts.mkGain??MKG[fm]??.5), br=(fm===1||fm===3||fm===4); put(texCanvas(t,(r,g,b,a)=>[br?SR:r,g,b,a*gk])); }
         if(fw){ const t=await tex('faceline',fw); const wg=(opts.wrinkleGain??(fw===6?.93:.98)); put(texCanvas(t,(r)=>fw===7?[opts.w7r??SR*.4,0,0,r*wg]:[0,0,0,r*wg])); }
         const tx=new THREE.CanvasTexture(cv); tx.flipY=false; tx.colorSpace=THREE.NoColorSpace; if(opts.flWrap!==false){ tx.wrapS=THREE.MirroredRepeatWrapping; } faceMat=litMaterial(lutSkin,sk,tx); } }
-    sc.add(new THREE.Mesh(fg,faceMat));
+    sc.add(new THREE.Mesh(fg,opts.dbgHeadNormal?normalMaterial(0):faceMat));
     if(!opts.dbgPieces) { const m=await addLit(CAPS.has(hairIdx)?'foreheadhat':'forehead',hairIdx,skinMat,flip); if(m) m.position.set(V1[0],V1[1],V1[2]); }
     const mt=new THREE.CanvasTexture(mask); mt.flipY=false; mt.colorSpace=THREE.NoColorSpace;
-    const mg=await shape('mask',P.faceType); const mmesh=new THREE.Mesh(mg,maskMaterial(lutFeat,mt)); mmesh.renderOrder=2; sc.add(mmesh);
+    const mg=await shape('mask',P.faceType); const mmat=maskMaterial(lutFeat,mt); if(isWii){ mmat.polygonOffset=true; mmat.polygonOffsetFactor=-6; mmat.polygonOffsetUnits=-6; } const mmesh=new THREE.Mesh(mg,mmat); mmesh.renderOrder=2; sc.add(mmesh);
     { const ty=36.3-1.473*P.noseY+(V2[1]-24.5), sc3=0.1717*P.noseSize+0.387, tz=V2[2];
       const ng=await shape('nose',P.noseType); if(ng){const nm=new THREE.Mesh(ng,skinMat); nm.position.set(0,ty,tz); nm.scale.set(sc3,sc3,sc3); sc.add(nm);}
       const lg=await shape('noseline',P.noseType); const lt=await tex('noseline',P.noseType);
-      if(lg){ const lc=texCanvas(lt,(r)=>[r,0,0,255]); const tx=new THREE.CanvasTexture(lc); tx.flipY=false; tx.colorSpace=THREE.NoColorSpace;
+      if(lg){ const lc=texCanvas(lt,(r)=>[r,0,0,255]); const tx=new THREE.CanvasTexture(lc); tx.flipY=false; tx.colorSpace=THREE.NoColorSpace; if(isWii) tx.wrapS=THREE.MirroredRepeatWrapping;
         const lm=new THREE.Mesh(lg,decalMaterial(lutSkin,tx,[0,0,0])); lm.position.set(0,ty,tz+0.5); lm.scale.set(sc3,sc3,1); lm.renderOrder=3; sc.add(lm); } }
     if(opts.dbgPieces){ const hues=[[1,0,0],[0,1,0],[0,0,1],[1,1,0],[1,0,1],[0,1,1]]; let k=0; for(const it of opts.dbgPieces){ const [c,i]=it.split(':'); const g=await shape(c,+i); if(!g){console.log('empty',it);continue;} const m=new THREE.Mesh(g,new THREE.MeshNormalMaterial()); m.material=litMaterial(lutSkin,hues[k++%6]); sc.add(m);} }
     // hair
@@ -98,12 +106,13 @@ export async function createRenderer(resBuf, base='./', extra={}){
         const C=col.glass[P.glassColor]||[0,0,0]; const lens=P.glassType>=6; const gm=new THREE.Mesh(gg,glassMaterial(gtex,[C[0]/255,C[1]/255,C[2]/255],lens?(opts.frameLo??0.93):0,opts.lensK??1)); const gs=0.4+0.15*P.glassSize;
         const GZ=opts.glassZ??46, kz=(300-GZ)/(300-22), gy=45.9-1.5*P.glassY+V1[1];
         gm.material.depthTest=GZ>22; gm.scale.set(gs*kz,gs*kz,1); gm.position.set(0,33.3+(gy-33.3)*kz,GZ); gm.renderOrder=10; sc.add(gm); } }
-    if(opts.body!==false){ const f01=a=>a.map(x=>x/255); const mats=(lutBody&&!opts.oldBody)?{shirt:litMaterial(lutBody,f01(FAV[P.favColor]||FAV[0])),pants:litMaterial(lutBody,f01(PANTS))}:{shirt:bodyMaterial(lutSkin,FAV[P.favColor]||FAV[0],opts.bodyNg??0.5),pants:bodyMaterial(lutSkin,PANTS,opts.bodyNg??0.5)}; const gl2=opts.oldProcBody?null:await getGLB(P.gender===1?1:0); const mm=opts.dbgNormal?{shirt:normalMaterial(0),pants:normalMaterial(0.5)}:mats; let bg; if(gl2){ if(opts.gu) setGU(opts.gu); bg=new THREE.Group(); for(const sp of warpBody(gl2,P.height,P.weight)){ bg.add(new THREE.Mesh(bodyGeometry(sp),sp.mat===0?mm.shirt:mm.pants)); } } else bg=buildBody(P,mm); bg.userData.body=true; sc.add(bg); }
+    if(opts.body!==false){ const f01=a=>a.map(x=>x/255); const mats=(lutBody&&!opts.oldBody)?{shirt:litMaterial(lutBody,f01(FAV[P.favColor]||FAV[0]),null,2),pants:litMaterial(lutBody,f01(PANTS),null,2)}:{shirt:bodyMaterial(lutSkin,FAV[P.favColor]||FAV[0],opts.bodyNg??0.5),pants:bodyMaterial(lutSkin,PANTS,opts.bodyNg??0.5)}; const gl2=opts.oldProcBody?null:await getGLB(P.gender===1?1:0); const mm=opts.dbgNormal?{shirt:normalMaterial(0),pants:normalMaterial(0.5)}:mats; let bg; if(gl2){ if(opts.gu) setGU(opts.gu); bg=new THREE.Group(); for(const sp of warpBody(gl2,P.height,P.weight)){ bg.add(new THREE.Mesh(bodyGeometry(sp),sp.mat===0?mm.shirt:mm.pants)); } } else bg=buildBody(P,mm); bg.userData.body=true; sc.add(bg); }
+    if(opts.dbgHeadNormal){ sc.children.forEach(c=>{ c.visible=c.geometry===fg; }); }
     if(opts.dbgNormal){ const dn=opts.dbgNormal; sc.children.forEach(c=>{c.visible=dn==='head'?!c.userData.body:dn==='cap'?!!c.userData.cap:(dn==='hair'||dn==='beard')?!!c.userData.hair:!!c.userData.body}); }
     let cam; if(opts.full){ const fc=fullCamera(P.height,P.weight); cam=makeCameraC(SIZE,fc.c,fc.yc); } else cam=makeCamera(SIZE,opts.camK,opts.camCX,opts.camCY);
     if(opts.dbgUV){ const [cat,ch]=opts.dbgUV; const s2=new THREE.Scene(); const idx=cat==='faceline'?P.faceType:(cat==='mask'?P.faceType:0); const g=await shape(cat,idx); s2.add(new THREE.Mesh(g,uvMaterial(ch))); rdr.setClearColor(0x000000,0); const sv=rdr.getClearAlpha(); rdr.render(s2,cam); return rdr.domElement; }
     rdr.render(sc,cam);
     return rdr.domElement;
   }
-  return {render,res};
+  return {render,res,isWii};
 }

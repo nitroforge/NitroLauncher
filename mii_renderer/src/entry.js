@@ -4,6 +4,7 @@
 //   await m.render(full,{size,maskRes,fflResBuffer,onCanvas}); const rcd = await m.encode(MiiFormats.RCD);
 import {MiiData, MiiFormats as MF, RANGE, FIELDS} from './mii-data.js';
 import {createRenderer} from './render.js';
+import {DXU} from './mii3d.js';
 import {COLORS} from './colors.js';
 import lutSkin from './lut_skin.b64';
 import lutFeat from './lut_feat.b64';
@@ -43,6 +44,7 @@ export class Mii{
   async encode(fmt){ if(fmt!==MF.RCD) throw new Error('Unsupported format: '+fmt); return this._d.bytes(); }
   async render(full,opts={}){
     const r=await rendererFor(opts.fflResBuffer);
+    { const d=opts.deluxe??globalThis.NF_DELUXE??true; DXU.value=d===true?0.15:(typeof d==='number'?d:0); }
     const size=opts.size||512; let ss=opts.ss??2; while(ss>1&&size*ss>3072) ss--;
     let cv=await r.render(this._d.params(),{size:size*ss,maskRes:opts.maskRes?Math.min(2048,opts.maskRes*(ss>1?1:1)):undefined,full:!!full,colors:COLORS,...(opts.debug||{})});
     if(ss>1){ // supersampled render, filtered down to the requested size (clean, sharp edges)
