@@ -6,13 +6,13 @@ License (see `LICENSE.txt` in this same folder). The parts below were made by
 other people and keep their own licenses.
 
 
-## RFL_Res.dat and other game data (Mii renderer resources)
+## Game data (Mii renderer resources)
 
-`RFL_Res.dat` is bundled directly in the built .exe. It is included under a
-license obtained separately for redistribution in this project. It is not
-open source and it is not covered by the NitroForge license. Don't re-extract
-and redistribute this file outside of Mario Kart Nitro itself without checking
-that license yourself.
+`RFL_Res.dat` (Nintendo's Mii face resource file) is not part of this
+repository. The official release `.exe` contains a copy; it is not open source
+and it is not covered by the NitroForge license. Don't take it out of the
+launcher and redistribute it. The Mii renderer can also read the face resource
+from the user's own Mario Kart Wii game.
 
 The Mii body models (`mii_renderer/miiMaleBody.glb`, `miiFemaleBody.glb`) and
 any Mii Channel icons or game-font symbols belong to Nintendo and are not

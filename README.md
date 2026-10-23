@@ -7,7 +7,7 @@
 
 <p align="center">
 <a href="../../releases/latest"><img src="https://img.shields.io/badge/Latest-Nitro-f0561e?style=flat-square&labelColor=161b22" alt="Latest Nitro" /></a>
-<a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-NitroForge%201.0-30363d?style=flat-square&labelColor=161b22" alt="NitroForge Source-Available License 1.0" /></a>
+<a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-NitroForge%201.1-30363d?style=flat-square&labelColor=161b22" alt="NitroForge Source-Available License 1.1" /></a>
 <a href="https://discord.gg/AhkHNPG65G"><img src="https://img.shields.io/badge/Discord-Join-5865F2?style=flat-square&labelColor=161b22&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
@@ -63,7 +63,7 @@
 <h3 align="center">License and community</h3>
 
 <p align="center">
-Source-available under the <a href="LICENSE.txt">NitroForge Source-Available License 1.0</a>.<br />
+Source-available under the <a href="LICENSE.txt">NitroForge Source-Available License 1.1</a>.<br />
 You can read the code, play and stream with the launcher, and send improvements.<br />
 Redistributing it, building other launchers from it, or selling it needs written permission.<br />
 Third-party parts and their licenses are listed in <a href="THIRD_PARTY_NOTICES.md">THIRD_PARTY_NOTICES.md</a>.<br />

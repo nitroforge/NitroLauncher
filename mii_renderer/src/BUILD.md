@@ -8,4 +8,4 @@ Build (Node.js):
     npm install three@0.160.0 esbuild
     npx esbuild entry.js --bundle --format=esm --minify --loader:.b64=text --legal-comments=none --outfile=../nitroforge-mii.js
 
-It needs `RFL_Res.dat` (supplied by the launcher) and the two body models next to the bundle at runtime.
+It needs a Mii face resource file (supplied by the launcher: the bundled `RFL_Res.dat` of the official release, or the file taken from the user's own game) and the two body models next to the bundle at runtime.

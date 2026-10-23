@@ -1,9 +1,9 @@
 NitroForge Mii renderer - notices
 
-The renderer code (nitroforge-mii.js and src/) was written by NitroForge and is covered by the NitroForge Source-Available License (LICENSE.txt in the repository root). It contains no Nintendo FFL code and no MiiJS or other AGPL code.
+The renderer code (nitroforge-mii.js and src/) was written by NitroForge and is covered by the NitroForge Source-Available License (LICENSE.txt in the repository root). It contains no Nintendo FFL code and no MiiJS or other AGPL code. This includes the reader for the Wii face resource file and the code that draws the face parts as vector shapes; both are NitroForge's own work.
 
 Third-party code inside it:
 three.js r160 - MIT License - Copyright (c) 2010-2023 three.js authors
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
-Not covered by the NitroForge license (Nintendo property): RFL_Res.dat and the Mii body models miiMaleBody.glb and miiFemaleBody.glb.
+Not covered by the NitroForge license (Nintendo property): RFL_Res.dat (not in the repository, only built into the official release) and the Mii body models miiMaleBody.glb and miiFemaleBody.glb.

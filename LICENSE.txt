@@ -1,6 +1,6 @@
                   NITROFORGE SOURCE-AVAILABLE LICENSE
-                             Version 1.0
-                   License identifier: LicenseRef-NitroForge-1.0
+                             Version 1.1
+                   License identifier: LicenseRef-NitroForge-1.1
 
  Copyright (c) 2026 NitroForge. All rights reserved.
 
@@ -33,7 +33,8 @@ NitroForge Materials.
 created: the launcher source code, the launcher program
 (MarioKartNitro.exe), logos, banners, artwork, icons, images, animations and
 documentation. This includes the NitroForge Mii renderer (the folder
-mii_renderer and its source), which NitroForge wrote itself.
+mii_renderer and its source, including its readers for Mii face resource
+files and its drawing code), which NitroForge wrote itself.
 
   "Third-Party Materials" means code, fonts, data or other files made by
 other people, for example fonts and libraries such as three.js.
@@ -51,10 +52,12 @@ THIRD_PARTY_NOTICES.md. This license does not change them.
 
   This license also does not cover anything owned by Nintendo or other
 companies. No Nintendo content is licensed here. This includes game data and
-artwork that may be shipped next to the launcher or built into test copies, the Mii body models (miiMaleBody.glb,
-miiFemaleBody.glb), the Mii Channel icons and the symbols taken from the
-game fonts. Mario Kart, Wii, Mii and related names, characters and
-resources belong to Nintendo.
+artwork, for example the Mii face resource file (RFL_Res.dat), which is not
+part of this repository and is only built into the official release, the Mii
+body models (miiMaleBody.glb, miiFemaleBody.glb), the Mii Channel icons and
+the symbols taken from the game fonts. Files that a user takes from their own
+game stay the property of their owners. Mario Kart, Wii, Mii and related
+names, characters and resources belong to Nintendo.
 
   2. What you may do (no permission needed).
 
@@ -121,6 +124,10 @@ in this license limits liability that cannot be limited by law.
 is governed by the laws of Austria, and the courts of Vienna are
 responsible, unless mandatory law says otherwise.
 
+  Version 1.1 only clarifies what is covered (the Mii renderer and its face
+resource readers) and what is not (Nintendo game data). The permissions and
+restrictions are the same as in Version 1.0.
+
                     END OF TERMS AND CONDITIONS
 
               How to Apply This License to Source Files
@@ -129,6 +136,6 @@ responsible, unless mandatory law says otherwise.
 the start of the file:
 
     Copyright (c) 2026 NitroForge. All rights reserved.
-    Licensed under the NitroForge Source-Available License, Version 1.0
-    (LicenseRef-NitroForge-1.0). See LICENSE.txt in the root folder.
+    Licensed under the NitroForge Source-Available License, Version 1.1
+    (LicenseRef-NitroForge-1.1). See LICENSE.txt in the root folder.
 
