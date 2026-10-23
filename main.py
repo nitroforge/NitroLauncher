@@ -459,6 +459,8 @@ class Api:
                 return {"ok": False, "error": "Pick the Dolphin program (Dolphin.exe)."}
             cfg["dolphin_path"] = value
         save_config(cfg)
+        if cfg.get("dolphin_path") and cfg.get("iso_path"):
+            self._extract_mii_resource_later()
         return {"ok": True}
 
     # ---------- Real Mii renderer resource ----------
@@ -470,25 +472,30 @@ class Api:
             candidates.append(path)
         base = app_data_dir()
         candidates += [
+            os.path.join(base, self._MII_RES_NAME),
             os.path.join(base, "FFLResHigh.dat"),
             os.path.join(base, "AFLResHigh_2_3.dat"),
             os.path.join(os.path.dirname(sys.executable), "FFLResHigh.dat"),
             os.path.join(os.path.dirname(sys.executable), "AFLResHigh_2_3.dat"),
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "FFLResHigh.dat"),
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "AFLResHigh_2_3.dat"),
-            # Bundled directly in the exe now that it's properly
-            # licensed for redistribution -- checked last so a resource
-            # file manually dropped next to the exe/in app-data still
-            # wins if one exists, but this means the real Mii renderer
-            # just works out of the box for everyone with no setup step.
+            # A copy bundled with this build, checked last so a file taken
+            # from the user's own game or placed by hand always wins.
             resource_path("RFL_Res.dat"),
         ]
+        # The bundled copy is checked first so the pictures always look the same on every PC; without it (not shipped in the public source) a file from the user's own game is used.
+        bundled = resource_path("RFL_Res.dat")
+        if bundled in candidates:
+            candidates.remove(bundled)
+        candidates.insert(0, bundled)
+        user_dir_file = self._mii_res_in_dolphin_folder()
+        if user_dir_file:
+            candidates.append(user_dir_file)
         for candidate in candidates:
             if candidate and os.path.isfile(candidate):
                 try:
-                    size = os.path.getsize(candidate)
-                    if size > 1024 * 1024:
-                        return {"ok": True, "path": candidate, "size": size}
+                    if self._is_mii_resource_file(candidate):
+                        return {"ok": True, "path": candidate, "size": os.path.getsize(candidate)}
                 except OSError:
                     pass
         return {"ok": False, "path": path, "size": 0,
@@ -505,6 +512,179 @@ class Api:
                     "data": base64.b64encode(data).decode("ascii")}
         except OSError as e:
             return {"ok": False, "error": str(e)}
+
+    # ---------- Mii resource taken from the user's own game ----------
+    _MII_RES_NAME = "RFL_Res.dat"
+    _MII_RES_MIN_SIZE = 1024 * 1024        # Wii U face resource (FFRA)
+    _MII_RES_WII_MIN_SIZE = 400 * 1024     # Wii face resource from the game itself
+    _MII_RES_MAGIC = b"FFRA"
+    _mii_res_lock = threading.Lock()
+
+    @classmethod
+    def _is_mii_resource(cls, data):
+        """True for a Wii U face resource (FFRA) or the Wii one from the game
+        (big-endian: 18 sections, then the number 925)."""
+        if len(data) >= cls._MII_RES_MIN_SIZE and data[:4] == cls._MII_RES_MAGIC:
+            return True
+        return (len(data) >= cls._MII_RES_WII_MIN_SIZE
+                and int.from_bytes(data[0:2], "big") == 18
+                and int.from_bytes(data[2:4], "big") == 925)
+
+    @classmethod
+    def _is_mii_resource_file(cls, path):
+        try:
+            with open(path, "rb") as f:
+                head = f.read(8)
+            size = os.path.getsize(path)
+        except OSError:
+            return False
+        if head[:4] == cls._MII_RES_MAGIC:
+            return size >= cls._MII_RES_MIN_SIZE
+        return (size >= cls._MII_RES_WII_MIN_SIZE and len(head) >= 4
+                and int.from_bytes(head[0:2], "big") == 18 and int.from_bytes(head[2:4], "big") == 925)
+
+    def _mii_res_in_dolphin_folder(self):
+        """Copy of the resource inside the user's Dolphin folder, if any."""
+        try:
+            dolphin = load_config().get("dolphin_path", "")
+            if not dolphin:
+                return None
+            path = os.path.join(self._dolphin_user_dir(dolphin), "Wii", "shared2", "menu", "FaceLib", self._MII_RES_NAME)
+            return path if os.path.isfile(path) else None
+        except Exception:
+            return None
+
+    @staticmethod
+    def _find_dolphin_tool(dolphin_path):
+        """DolphinTool normally sits in the same folder as Dolphin itself."""
+        folder = os.path.dirname(str(dolphin_path or ""))
+        for name in ("DolphinTool.exe", "DolphinTool", "dolphin-tool"):
+            candidate = os.path.join(folder, name)
+            if folder and os.path.isfile(candidate):
+                return candidate
+        return shutil.which("dolphin-tool") or shutil.which("DolphinTool")
+
+    @staticmethod
+    def _yaz0_decode(data):
+        """Decode a Yaz0 block (a 16-byte header, then flag-byte groups)."""
+        size = int.from_bytes(data[4:8], "big")
+        out = bytearray()
+        pos = 16
+        while len(out) < size and pos < len(data):
+            flags = data[pos]
+            pos += 1
+            for bit in range(8):
+                if len(out) >= size or pos >= len(data):
+                    break
+                if flags & (0x80 >> bit):
+                    out.append(data[pos])
+                    pos += 1
+                else:
+                    b1, b2 = data[pos], data[pos + 1]
+                    pos += 2
+                    dist = ((b1 & 0x0F) << 8 | b2) + 1
+                    count = b1 >> 4
+                    if count == 0:
+                        count = data[pos] + 0x12
+                        pos += 1
+                    else:
+                        count += 2
+                    for _ in range(count):
+                        out.append(out[-dist])
+        return bytes(out)
+
+    @staticmethod
+    def _u8_find_file(data, wanted):
+        """Return the bytes of the first file whose name matches wanted(name)."""
+        if data[:4] != b"\x55\xAA\x38\x2D":
+            return None
+        root = int.from_bytes(data[4:8], "big")
+        count = int.from_bytes(data[root + 8:root + 12], "big")
+        names = root + count * 12
+        for index in range(1, count):
+            node = root + index * 12
+            kind = data[node]
+            name_off = int.from_bytes(data[node + 1:node + 4], "big")
+            start = int.from_bytes(data[node + 4:node + 8], "big")
+            size = int.from_bytes(data[node + 8:node + 12], "big")
+            end = data.index(b"\x00", names + name_off)
+            name = data[names + name_off:end].decode("ascii", "ignore")
+            if kind == 0 and wanted(name):
+                return bytes(data[start:start + size])
+        return None
+
+    def _unwrap_mii_resource(self, data):
+        """Turn an extracted file into the resource bytes, or None."""
+        for _ in range(4):
+            if data[:4] == b"Yaz0":
+                data = self._yaz0_decode(data)
+            elif data[:4] == b"\x55\xAA\x38\x2D":
+                inner = self._u8_find_file(data, lambda n: n.lower().startswith("rfl_res") and n.lower().endswith(".dat"))
+                if inner is None:
+                    return None
+                data = inner
+            else:
+                break
+        if self._is_mii_resource(data):
+            return data
+        return None
+
+    def extract_mii_resource(self):
+        """Take the Mii resource out of the user's own Mario Kart Wii image
+        with Dolphin's command-line tool, and keep it in the app folder."""
+        with self._mii_res_lock:
+            try:
+                target = os.path.join(app_data_dir(), self._MII_RES_NAME)
+                if os.path.isfile(target) and self._is_mii_resource_file(target):
+                    return {"ok": True, "path": target, "already": True}
+                cfg = load_config()
+                dolphin = cfg.get("dolphin_path", "")
+                iso = cfg.get("iso_path", "")
+                if not dolphin or not iso or not os.path.isfile(iso):
+                    return {"ok": False, "error": "Choose Dolphin and your Mario Kart Wii game in Settings first."}
+                tool = self._find_dolphin_tool(dolphin)
+                if not tool:
+                    return {"ok": False, "error": "DolphinTool was not found next to Dolphin. Use a current Dolphin build, or choose RFL_Res.dat by hand."}
+                flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+                listing = subprocess.run([tool, "extract", "-i", iso, "--list", "-p", "DATA"],
+                                         capture_output=True, text=True, timeout=300, creationflags=flags)
+                found = []
+                for line in (listing.stdout or "").splitlines():
+                    match = re.search(r"(\S*RFL_?Res\S*)", line, re.IGNORECASE)
+                    if match:
+                        path = match.group(1).strip("\"'").replace("\\", "/")
+                        path = path if path.startswith("/") else "/" + path
+                        if path not in found:
+                            found.append(path)
+                if not found:
+                    return {"ok": False, "error": "No Mii resource was found inside this game image."}
+                work = tempfile.mkdtemp(prefix="nitro_res_", dir=app_data_dir())
+                try:
+                    for path in found:
+                        for attempt in (path, "/files" + path if not path.startswith("/files/") else path):
+                            subprocess.run([tool, "extract", "-i", iso, "-o", work, "-p", "DATA", "-s", attempt, "-q"],
+                                           capture_output=True, timeout=600, creationflags=flags)
+                            wanted = os.path.basename(path).lower()
+                            for root, _dirs, files in os.walk(work):
+                                for name in files:
+                                    if name.lower() != wanted:
+                                        continue
+                                    with open(os.path.join(root, name), "rb") as f:
+                                        resource = self._unwrap_mii_resource(f.read())
+                                    if resource:
+                                        tmp = target + ".tmp"
+                                        with open(tmp, "wb") as f:
+                                            f.write(resource)
+                                        os.replace(tmp, target)
+                                        return {"ok": True, "path": target, "size": len(resource)}
+                    return {"ok": False, "error": "The Mii resource could not be read from this game image."}
+                finally:
+                    shutil.rmtree(work, ignore_errors=True)
+            except (OSError, subprocess.SubprocessError, ValueError, IndexError) as e:
+                return {"ok": False, "error": f"Could not get the Mii resource from the game: {e}"}
+
+    def _extract_mii_resource_later(self):
+        threading.Thread(target=self.extract_mii_resource, daemon=True).start()
 
     def get_default_mii(self):
         """Returns the starter Mii that "New Mii" builds from -- a real
