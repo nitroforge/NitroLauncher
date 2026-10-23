@@ -206,10 +206,14 @@ def load_config() -> dict:
         try:
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
+            if not isinstance(data, dict):
+                raise ValueError("config is not an object")
             merged = {**DEFAULT_CONFIG, **data}
+            if not isinstance(merged.get("mods"), list):
+                merged["mods"] = list(DEFAULT_CONFIG.get("mods", []))
             _repair_stale_builtin_mod(merged)
             return merged
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, OSError, ValueError, TypeError, AttributeError):
             pass
     return dict(DEFAULT_CONFIG)
 
@@ -218,7 +222,7 @@ def _repair_stale_builtin_mod(cfg: dict) -> None:
     permanent_content = os.path.join(app_data_dir(), "mods", "Nitro Pack", "content")
     good_xml = os.path.join(permanent_content, "riivolution", "MKnitro.xml")
     for m in cfg.get("mods", []):
-        if not m.get("builtin"):
+        if not isinstance(m, dict) or not m.get("builtin"):
             continue
         xml_missing = not m.get("xml_path") or not os.path.exists(m["xml_path"])
         if xml_missing and os.path.exists(good_xml):
@@ -635,8 +639,10 @@ class Api:
         try:
             with open(self._mii_library_path(), "r", encoding="utf-8") as f:
                 data = json.load(f)
-            return data if isinstance(data, list) else []
-        except (OSError, json.JSONDecodeError):
+            if not isinstance(data, list):
+                return []
+            return [x for x in data if isinstance(x, dict)]
+        except (OSError, ValueError):
             return []
 
     def _write_mii_library(self, items):
@@ -645,6 +651,36 @@ class Api:
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(items, f, ensure_ascii=False, indent=2)
         os.replace(tmp, path)
+        self._export_mii_files(items)
+
+    def _mii_folder(self):
+        path = os.path.join(app_data_dir(), "mii")
+        os.makedirs(path, exist_ok=True)
+        return path
+
+    def _export_mii_files(self, items):
+        """Keep one plain .mii file (the 74-byte record) per saved Mii in
+        %APPDATA%/MarioKartNitro/mii, next to the library file. Never raises:
+        the library JSON stays the source of truth."""
+        try:
+            folder = self._mii_folder()
+            wanted = {}
+            for item in items:
+                block = base64.b64decode(item.get("data", ""), validate=True)
+                if len(block) != self.MII_BLOCK_SIZE:
+                    continue
+                name = self._mii_name(block)
+                safe = "".join(c for c in name if c.isalnum() or c in " -_") or "Mii"
+                tag = "".join(c for c in str(item.get("stage_id") or "") if c.isalnum())[:8] or uuid.uuid4().hex[:8]
+                wanted[f"{safe.strip()[:20]}_{tag}.mii"] = block
+            for fname in os.listdir(folder):
+                if fname.lower().endswith(".mii") and fname not in wanted:
+                    os.remove(os.path.join(folder, fname))
+            for fname, block in wanted.items():
+                with open(os.path.join(folder, fname), "wb") as f:
+                    f.write(block)
+        except Exception:
+            pass
 
     @staticmethod
     def _crc16_ccitt(buf, length):
@@ -667,17 +703,38 @@ class Api:
     def _mii_id(block):
         return int.from_bytes(block[0x18:0x1C], "big") if len(block) >= 0x1C else 0
 
+    # Layout of RFL_DB.dat (see WiiBrew, "/shared2/menu/FaceLib/RFL_DB.dat"):
+    #   0x00000  "RNOD" marker, then the Mii slots (MII_SLOT_COUNT x MII_BLOCK_SIZE)
+    #   0x01D00  "RNHD" marker, then the Mii Parade area
+    #   0x1F1DE  big-endian CRC-16 of every byte before it
+    MII_DB_FILE_SIZE = 779_968
+    MII_DB_MAGIC = b"RNOD"
+    MII_PARADE_OFFSET = 0x1D00
+    MII_PARADE_MAGIC = b"RNHD"
+    MII_PARADE_FILL = b"\xFF\xFF\xFF\xFF"
+    # One flag byte sits directly after the last slot; an empty database sets it.
+    MII_SLOTS_END_FLAG = 0x80
+
     def _create_empty_mii_db(self, db_path):
-        # Same Wii database structure used by WheelWizard: 100 74-byte
-        # blocks begin at 0x04, RNOD/RNHD headers, CRC-16/CCITT at 0x1F1DE.
-        raw = bytearray(779_968)
-        raw[0:4] = b"RNOD"
-        raw[0x1CE0 + 0x0C] = 0x80
-        raw[0x1D00:0x1D04] = b"RNHD"
-        raw[0x1D04:0x1D08] = b"\xFF\xFF\xFF\xFF"
+        """Write a new, empty Mii database (no Miis stored) to db_path.
+
+        Missing parent folders are created. The file gets the two section
+        markers, the fixed header bytes and a valid trailing CRC-16.
+        """
+        raw = bytearray(self.MII_DB_FILE_SIZE)
+
+        raw[0:len(self.MII_DB_MAGIC)] = self.MII_DB_MAGIC
+
+        slots_end = self.MII_DB_HEADER_OFFSET + self.MII_SLOT_COUNT * self.MII_BLOCK_SIZE
+        raw[slots_end] = self.MII_SLOTS_END_FLAG
+
+        parade = self.MII_PARADE_OFFSET
+        raw[parade:parade + 4] = self.MII_PARADE_MAGIC
+        raw[parade + 4:parade + 8] = self.MII_PARADE_FILL
+
         crc = self._crc16_ccitt(raw, self.MII_DB_CRC_OFFSET)
-        raw[self.MII_DB_CRC_OFFSET] = (crc >> 8) & 0xFF
-        raw[self.MII_DB_CRC_OFFSET + 1] = crc & 0xFF
+        raw[self.MII_DB_CRC_OFFSET:self.MII_DB_CRC_OFFSET + 2] = crc.to_bytes(2, "big")
+
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
         with open(db_path, "wb") as f:
             f.write(raw)
@@ -725,7 +782,7 @@ class Api:
                     records[existing_index] = rec
                 else:
                     records.append(rec)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, AttributeError):
                 continue
 
         return {"ok": True, "path": db or "", "miis": records,
@@ -783,10 +840,16 @@ class Api:
         if not db:
             return {"ok": False, "error": "Choose your Dolphin executable in Settings before syncing Miis."}
         try:
+            crc_offset = self.MII_DB_CRC_OFFSET
+            if os.path.isfile(db) and os.path.getsize(db) < crc_offset + 2:
+                # Truncated or empty file: keep it aside, then start a fresh database.
+                aside = db + ".nitro-invalid"
+                if not os.path.exists(aside):
+                    shutil.copy2(db, aside)
+                os.remove(db)
             if not os.path.isfile(db):
                 self._create_empty_mii_db(db)
             raw = bytearray(open(db, "rb").read())
-            crc_offset = self.MII_DB_CRC_OFFSET
             if len(raw) < crc_offset + 2:
                 raise ValueError(f"RFL_DB.dat is too small to be a valid Wii Mii database: {db}")
             stored = (raw[crc_offset] << 8) | raw[crc_offset + 1]
@@ -914,76 +977,68 @@ class Api:
 
 
     # ---------- launch ----------
+    _DOLPHIN_REG_KEY = r"Software\Dolphin Emulator"
+    _NAND_MII_FILE = ("Wii", "shared2", "menu", "FaceLib", "RFL_DB.dat")
+
+    @staticmethod
+    def _read_dolphin_registry(name):
+        """Return a value from Dolphin's per-user registry key, or None.
+
+        Always None on non-Windows systems or when the key/value is missing.
+        """
+        if sys.platform != "win32":
+            return None
+        try:
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, Api._DOLPHIN_REG_KEY) as key:
+                return winreg.QueryValueEx(key, name)[0]
+        except OSError:
+            return None
+
     def _is_portable_dolphin(self, dolphin_dir):
-        """Real Dolphin portable-mode detection, matching WheelWizard's
-        PathManager.cs TryFindPortableUserFolderPath exactly. This was
-        the actual root cause of everything: my earlier version treated
-        the mere EXISTENCE of a 'User' folder next to the exe as proof
-        of portable mode, but that's wrong — a User folder can exist
-        for other reasons (leftover data, earlier testing, etc.)
-        without Dolphin actually being in portable mode. The real
-        trigger is a 'portable.txt' marker file, or a specific
-        registry flag. Since neither existed here, real Dolphin (and
-        the real WheelWizard, confirmed via its own settings screen)
-        correctly use AppData — but my code was wrongly treating the
-        leftover User folder as portable and force-pointing -u at the
-        wrong place on every single launch."""
-        if os.path.exists(os.path.join(dolphin_dir, "portable.txt")):
+        """Tell whether Dolphin in dolphin_dir runs in portable mode.
+
+        Portable mode is switched on by a portable.txt file beside the
+        executable or, on Windows, by the LocalUserConfig registry value
+        being 1. A User folder on its own does not count. Never raises.
+        """
+        if os.path.isfile(os.path.join(dolphin_dir, "portable.txt")):
             return True
-        if sys.platform == "win32":
-            try:
-                import winreg
-                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Dolphin Emulator") as key:
-                    value, _ = winreg.QueryValueEx(key, "LocalUserConfig")
-                    if str(value) == "1":
-                        return True
-            except OSError:
-                pass
-        return False
+        return str(self._read_dolphin_registry("LocalUserConfig")) == "1"
 
     def _dolphin_user_dir(self, dolphin_path):
-        """Find Dolphin's actual User folder, matching WheelWizard's
-        exact priority order (PathManager.cs TryFindUserFolderPath):
-          1. Portable — ONLY if portable.txt exists (or the registry
-             LocalUserConfig flag is set), not just because a 'User'
-             folder happens to be present.
-          2. Windows Registry (HKCU\\Software\\Dolphin Emulator\\UserConfigPath)
-          3. Documents\\Dolphin Emulator
-          4. AppData\\Dolphin Emulator (last-resort fallback)
+        """Return the User folder Dolphin uses for the given executable.
+
+        Candidates are tried in this order:
+          1. the User folder beside the executable, if it already holds
+             the NAND Mii database;
+          2. that same folder, if Dolphin is in portable mode (even if
+             it has not been created yet);
+          3. the UserConfigPath registry value (Windows only);
+          4. Documents/Dolphin Emulator in the home folder;
+          5. %APPDATA%/Dolphin Emulator;
+          6. otherwise the folder beside the executable, even if missing.
         """
         dolphin_dir = os.path.dirname(dolphin_path)
         portable_user = os.path.join(dolphin_dir, "User")
-        # If a Dolphin user folder already contains the Mii database, prefer
-        # that exact NAND. The launcher also passes this path with -u, so reads,
-        # writes and the game all use the same data directory.
-        if os.path.isdir(portable_user) and os.path.isfile(os.path.join(portable_user, "Wii", "shared2", "menu", "FaceLib", "RFL_DB.dat")):
+        if os.path.isfile(os.path.join(portable_user, *self._NAND_MII_FILE)):
             return portable_user
-        if self._is_portable_dolphin(dolphin_dir) and os.path.isdir(portable_user):
+        if self._is_portable_dolphin(dolphin_dir):
             return portable_user
 
-        if sys.platform == "win32":
-            try:
-                import winreg
-                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Dolphin Emulator") as key:
-                    value, _ = winreg.QueryValueEx(key, "UserConfigPath")
-                    if value:
-                        normalized = value.replace("/", os.sep)
-                        if os.path.isdir(normalized):
-                            return normalized
-            except OSError:
-                pass  # key/value doesn't exist — fall through to other checks
-
-        documents = os.path.join(os.path.expanduser("~"), "Documents", "Dolphin Emulator")
-        if os.path.isdir(documents):
-            return documents
-
+        configured = self._read_dolphin_registry("UserConfigPath")
+        candidates = []
+        if configured:
+            candidates.append(str(configured).replace("/", os.sep))
+        candidates.append(os.path.join(os.path.expanduser("~"), "Documents", "Dolphin Emulator"))
         appdata = os.environ.get("APPDATA")
         if appdata:
-            appdata_path = os.path.join(appdata, "Dolphin Emulator")
-            if os.path.isdir(appdata_path):
-                return appdata_path
+            candidates.append(os.path.join(appdata, "Dolphin Emulator"))
 
-        return portable_user  # last resort, matches the old behavior
+        for folder in candidates:
+            if os.path.isdir(folder):
+                return folder
+        return portable_user
 
 
     @staticmethod
@@ -1015,8 +1070,7 @@ class Api:
 
     def _kill_dolphin(self, dolphin_path):
         """Kill any already-running Dolphin process before launching a
-        new one — matches WheelWizard's own DolphinLaunchHelper.KillDolphin()
-        exactly. If Dolphin is already open from an earlier test, a new
+        new one. If Dolphin is already open from an earlier test, a new
         launch pointed at the mod preset may not actually take effect
         (single-instance behavior, or a second window in a stale state)
         — this was very likely happening throughout testing, since
@@ -1108,8 +1162,7 @@ class Api:
                 # Link every subfolder from your content folder directly
                 # into Dolphin's OWN Load/Riivolution folder — this is
                 # what actually matches your proven manual test (files
-                # physically present there) and how WheelWizard does it
-                # too. Uses a junction so nothing gets copied — instant,
+                # physically present there). Uses a junction so nothing gets copied — instant,
                 # regardless of how large the mod content is.
                 try:
                     riivolution_root = os.path.join(user_dir, "Load", "Riivolution")

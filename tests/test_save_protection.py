@@ -6,7 +6,6 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
-import threading
 import unittest
 from unittest.mock import patch
 

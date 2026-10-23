@@ -2088,15 +2088,15 @@ const MII_SYMBOLS = [["F07D", "nitro_rank_1"], ["F07E", "nitro_rank_2"], ["F07F"
   const isSym = ch => { const n = ch.charCodeAt(0); return n >= 0xF000 && n <= 0xF085; };
   const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
   const mkImg = ch => { const im = document.createElement("img"); im.src = SRC(ch.charCodeAt(0).toString(16).toUpperCase()); im.dataset.c = ch; im.alt = ""; im.contentEditable = "false"; im.draggable = false; im.onerror = () => { im.style.display = "none"; }; return im; };
-  const readBox = () => { let t = ""; box.childNodes.forEach(n => { if (n.nodeType === 3) t += n.nodeValue.replace(/[\r\n]/g, ""); else if (n.nodeName === "IMG") t += n.dataset.c || ""; }); return t; };
+  const readBox = () => { let t = ""; box.childNodes.forEach(n => { if (n.nodeType === 3) t += n.nodeValue.replace(/[\r\n\uE000-\uF8FF]/g, ""); else if (n.nodeName === "IMG") t += n.dataset.c || ""; }); return t; };
   const build = str => { box.textContent = ""; let buf = ""; const flush = () => { if (buf) { box.appendChild(document.createTextNode(buf)); buf = ""; } };
     for (const ch of str) { if (isSym(ch)) { flush(); box.appendChild(mkImg(ch)); } else buf += ch; } flush(); };
   const caretEnd = () => { const r = document.createRange(); r.selectNodeContents(box); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
   // setting input.value from code (loading a Mii) redraws the box
-  Object.defineProperty(input, "value", { configurable: true, get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, String(v ?? "").slice(0, MAX)); build(desc.get.call(this)); } });
+  Object.defineProperty(input, "value", { configurable: true, get(){ return desc.get.call(this); }, set(v){ desc.set.call(this, [...String(v ?? "")].filter(c => !(c >= "\uE000" && c <= "\uF8FF") || isSym(c)).join("").slice(0, MAX)); build(desc.get.call(this)); } });
   const commit = (rebuild) => {
     let v = readBox(); const cut = v.length > MAX; if (cut) v = v.slice(0, MAX);
-    const bad = cut || [...box.childNodes].some(n => n.nodeType !== 3 && n.nodeName !== "IMG") || /[\uF000-\uF085]/.test([...box.childNodes].filter(n => n.nodeType === 3).map(n => n.nodeValue).join(""));
+    const bad = cut || [...box.childNodes].some(n => n.nodeType !== 3 && n.nodeName !== "IMG") || /[\uE000-\uF8FF]/.test([...box.childNodes].filter(n => n.nodeType === 3).map(n => n.nodeValue).join(""));
     desc.set.call(input, v);
     if (bad || rebuild) { build(v); caretEnd(); }
     input.dispatchEvent(new Event("input", { bubbles: true }));
