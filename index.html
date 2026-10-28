@@ -546,7 +546,7 @@
 <div class="titlebar">
 <div class="brand"><img class="brand-mark" id="brandLogo" src="logo.png" alt="Mario Kart Nitro" />
 <div class="brand-text">MARIO KART <span>NITRO</span></div>
-<div class="ver-pill" id="verPill">v1.0.0</div>
+<div class="ver-pill" id="verPill">v1.0.1</div>
 </div>
 <nav class="tabs" id="tabs"><button data-target="home" class="active" id="navHome">Home</button> <button data-target="mii" id="navMii">Mii</button> <button data-target="settings" id="navSettings">Settings</button></nav>
 </div>
@@ -574,7 +574,7 @@
 </div>
 <div class="stat">
 <div class="label" id="labelLauncher">Launcher</div>
-<div class="val" id="statVersion">v1.0.0</div>
+<div class="val" id="statVersion">v1.0.1</div>
 </div>
 </div>
 <div class="grid-4 cards">
@@ -605,7 +605,7 @@
       <div class="mii-toolbar">
         <button class="btn btn-primary" id="miiSaveBtn">Save to Nitro</button>
         <button class="btn btn-ghost" id="miiNewBtn">New Mii</button>
-        <button class="btn btn-ghost" id="miiRefresh2Btn">Reload</button>
+        <button class="btn btn-ghost" id="miiRefresh2Btn" style="display:inline-flex;align-items:center;gap:7px"><svg class="ico" viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><defs><mask id="diceGap" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32"><rect width="32" height="32" fill="#fff"/><rect x="2.2" y="12" width="15.600" height="15.600" rx="3.400" transform="rotate(-18 10 19.800)" fill="#000" stroke="#000" stroke-width="5.400"/></mask></defs><g mask="url(#diceGap)"><rect x="13.200" y="3.400" width="15.200" height="15.200" rx="3.400" transform="rotate(20 20.800 11)"/><g fill="currentColor" stroke="none"><circle cx="17.600" cy="8.200" r="1.700"/><circle cx="24.300" cy="13.800" r="1.700"/><circle cx="21.400" cy="11.200" r="1.700"/></g></g><rect x="2.200" y="12" width="15.600" height="15.600" rx="3.400" transform="rotate(-18 10 19.800)"/><g fill="currentColor" stroke="none"><circle cx="6.300" cy="16.700" r="1.700"/><circle cx="12.700" cy="14.600" r="1.700"/><circle cx="10" cy="19.800" r="1.700"/><circle cx="7.300" cy="25" r="1.700"/><circle cx="13.700" cy="22.900" r="1.700"/></g></svg><span id="miiRefresh2Label">Random</span></button>
       </div>
       <div class="mii-tabs">
         <button class="mii-tab active" data-miitab="identity" id="miiSubtabIdentity">Identity</button>
@@ -1646,7 +1646,9 @@ async function saveMii() {
 const BLANK_MII_RCD_B64 =
   "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
 
-async function newMii() {
+// newMii("quiet") builds the blank Mii without the extra picture and message (Random uses it).
+async function newMii(mode) {
+  const quiet = mode === "quiet";
   try {
     const { Mii } =
       await ensureMiiJS();
@@ -1683,6 +1685,9 @@ async function newMii() {
       currentMii.set("copying", true);
     }
 
+    // The bundled starter Mii is called "てすと" (test), which the name box can't show.
+    if (usedStarterTemplate) currentMii.set("name", "Mii");
+
     miiNew = true;
     selectedMii = -1;
     currentStageId = null;
@@ -1694,6 +1699,8 @@ async function newMii() {
 
     loadMiiForm(currentMii);
     miiThumbsInvalidate();
+
+    if (quiet) return;
 
     await renderCurrentMii();
 
@@ -2280,7 +2287,7 @@ const miiRefresh2Btn =
 
 if (miiRefresh2Btn) {
   miiRefresh2Btn.onclick =
-    refreshMiis;
+    randomMii;
 }
 
 const miiSaveBtn =
@@ -2299,6 +2306,124 @@ if (miiNewBtn) {
     newMii;
 }
 
+
+/* ---- Random Mii: 900,000,000 different, normal-looking Miis ----
+   Every number 0..899,999,999 maps to exactly one Mii. The number is scrambled
+   (multiply by a large prime, modulo the number of part combinations) so that two
+   different numbers never give the same combination of parts. Sizes and positions
+   are kept in the middle ranges, so every result looks like a normal Mii. */
+const MII_RANDOM_COUNT = 900000000;
+const MII_RANDOM_RADIX = [2, 8, 6, 72, 8, 2, 48, 6, 24, 12, 24, 3, 5, 4, 4, 12];
+const MII_RANDOM_MODULUS = MII_RANDOM_RADIX.reduce((a, b) => a * BigInt(b), 1n);
+const MII_RANDOM_PRIME = 2654435761n;
+const MII_RANDOM_FEATURES = [0, 0, 0, 0, 1, 3, 8, 10, 11];
+const MII_RANDOM_GLASSES = [0, 0, 0, 1, 2, 3, 4, 5, 7];
+
+function miiRandomParts(index) {
+  let j = (BigInt(index) * MII_RANDOM_PRIME) % MII_RANDOM_MODULUS;
+  const d = MII_RANDOM_RADIX.map(r => {
+    const b = BigInt(r);
+    const v = Number(j % b);
+    j = j / b;
+    return v;
+  });
+  // small deterministic noise for sizes and positions (not needed for uniqueness)
+  let h = (Number(BigInt(index) % 4294967296n) ^ 0x9e3779b9) >>> 0;
+  const rnd = () => {
+    h = (h + 0x6D2B79F5) >>> 0;
+    let t = h;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const near = (mid, spread, lo, hi) =>
+    Math.max(lo, Math.min(hi, mid + Math.round((rnd() * 2 - 1) * spread)));
+
+  const female = d[0] === 1;
+  const hairColor = d[4];
+  const glassIdx = d[12] + d[13] * 5;
+  const glass = MII_RANDOM_GLASSES[glassIdx % MII_RANDOM_GLASSES.length];
+  const wantsHair = !female && d[14] === 0 && rnd() < 0.5;
+  // Eyes sit a little lower or higher, the eyebrows always stay clearly above them
+  // (a bigger number means lower on the face). This keeps brows out of the eyes.
+  const eyeVert = near(12, 1, 11, 13);
+  const browGap = 3 + Math.floor(rnd() * 2);
+  return {
+    miiGender: d[0],
+    miiFav: Math.floor(rnd() * 12),
+    miiFaceShape: d[1],
+    miiSkin: d[2],
+    miiHair: d[3],
+    miiHairColor: hairColor,
+    hairFlip: d[5] === 1,
+    miiEyeType: d[6],
+    miiEyeColor: d[7],
+    miiBrowType: d[8],
+    miiNoseType: d[9],
+    miiLipType: d[10],
+    miiLipColor: d[11],
+    miiFeature: MII_RANDOM_FEATURES[d[15] % MII_RANDOM_FEATURES.length],
+    miiBrowColor: hairColor,
+    miiEyeRot: near(4, 1, 2, 5),
+    miiEyeVert: eyeVert,
+    miiEyeSize: near(4, 1, 3, 5),
+    miiEyeSpace: near(2, 1, 1, 4),
+    miiBrowRot: near(6, 1, 5, 7),
+    miiBrowSize: near(4, 1, 3, 5),
+    miiBrowVert: eyeVert - browGap,
+    miiBrowSpace: near(2, 1, 1, 4),
+    miiNoseSize: near(4, 1, 3, 5),
+    miiNoseVert: near(9, 1, 7, 11),
+    miiLipSize: near(4, 1, 3, 5),
+    miiLipVert: near(13, 1, 11, 15),
+    miiGlassType: glass,
+    miiGlassColor: 0,
+    miiGlassSize: near(4, 1, 3, 5),
+    miiGlassVert: near(10, 1, 8, 12),
+    miiMustache: wantsHair ? 1 + (d[13] % 3) : 0,
+    miiMustSize: near(4, 1, 3, 5),
+    miiMustVert: near(10, 1, 8, 12),
+    miiBeard: !female && d[14] === 1 ? 1 + (d[13] % 3) : 0,
+    miiBeardColor: hairColor,
+    miiMole: rnd() < 0.04,
+    miiMoleSize: near(4, 1, 3, 5),
+    miiMoleVert: near(20, 4, 14, 24),
+    miiMoleHoriz: near(4, 2, 2, 8),
+    miiHeight: near(64, 20, 40, 90),
+    miiWeight: near(64, 20, 40, 90)
+  };
+}
+
+async function randomMii() {
+  try {
+    // Random always makes a new Mii, so a saved Mii you have open is never changed.
+    await newMii("quiet");
+    if (!currentMii) return;
+    const index = Math.floor(Math.random() * MII_RANDOM_COUNT);
+    const parts = miiRandomParts(index);
+    for (const [id, v] of Object.entries(parts)) {
+      if (id === "hairFlip") {
+        const e = document.getElementById("miiHairFlip");
+        if (e) e.checked = v;
+      } else if (id === "miiMole") {
+        const e = document.getElementById("miiMole");
+        if (e) e.checked = v;
+      } else {
+        miiSet(id, v);
+      }
+    }
+    await applyMiiForm();
+    loadMiiForm(currentMii);
+    miiThumbsInvalidate();
+    await renderCurrentMii();
+    setMiiStatus("Random Mii #" + (index + 1).toLocaleString("en-US") +
+      " of " + MII_RANDOM_COUNT.toLocaleString("en-US") +
+      ". New Mii: press Save to Nitro to keep it.");
+  } catch (e) {
+    console.error("Random Mii failed:", e);
+    setMiiStatus("Could not make a random Mii: " + (e?.message || e), true);
+  }
+}
 
 let toastEl = null;
 
@@ -2352,7 +2477,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin installation", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Continue",
       creditsBackBtn:"← Home", creditsTitle:"Credits",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Custom launcher — version 1.0.0",
+      creditsAppDesc:"Custom launcher — version 1.0.1",
       creditsLicenseTitle:"License",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
@@ -2378,7 +2503,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Home", miiTitle:"Mii", miiTag:"Nitro Mii library · syncs on Play",
       miiListHeading:"Miis", miiRefreshBtn:"Refresh", miiEmptyHint:"Set your Dolphin path in Settings first.",
       miiPreviewLoading:"Select a Mii",
-      miiSaveBtn:"Save to Nitro", miiNewBtn:"New Mii", miiRefresh2Btn:"Reload",
+      miiSaveBtn:"Save to Nitro", miiNewBtn:"New Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identity", miiSubtabFace:"Face", miiSubtabHair:"Hair", miiSubtabEyes:"Eyes",
       miiSubtabBrows:"Brows", miiSubtabNose:"Nose", miiSubtabMouth:"Mouth", miiSubtabExtras:"Extras",
       miiLblName:"Name", miiLblGender:"Gender", miiOptMale:"Male", miiOptFemale:"Female",
@@ -2414,7 +2539,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin-Installation", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Weiter",
       creditsBackBtn:"← Start", creditsTitle:"Credits",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Eigener Launcher — Version 1.0.0",
+      creditsAppDesc:"Eigener Launcher — Version 1.0.1",
       creditsLicenseTitle:"Lizenz",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
@@ -2440,7 +2565,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Start", miiTitle:"Mii", miiTag:"Nitro-Mii-Bibliothek · synchronisiert bei Play",
       miiListHeading:"Miis", miiRefreshBtn:"Aktualisieren", miiEmptyHint:"Lege zuerst deinen Dolphin-Pfad in den Einstellungen fest.",
       miiPreviewLoading:"Wähle einen Mii",
-      miiSaveBtn:"In Nitro speichern", miiNewBtn:"Neuer Mii", miiRefresh2Btn:"Neu laden",
+      miiSaveBtn:"In Nitro speichern", miiNewBtn:"Neuer Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identität", miiSubtabFace:"Gesicht", miiSubtabHair:"Haare", miiSubtabEyes:"Augen",
       miiSubtabBrows:"Augenbrauen", miiSubtabNose:"Nase", miiSubtabMouth:"Mund", miiSubtabExtras:"Extras",
       miiLblName:"Name", miiLblGender:"Geschlecht", miiOptMale:"Männlich", miiOptFemale:"Weiblich",
@@ -2476,7 +2601,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Installation Dolphin", labelSetupIso:"ISO Mario Kart Wii", setupContinueLabel:"Continuer",
       creditsBackBtn:"← Accueil", creditsTitle:"Crédits",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Launcher personnalisé — version 1.0.0",
+      creditsAppDesc:"Launcher personnalisé — version 1.0.1",
       creditsLicenseTitle:"Licence",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Communauté",
@@ -2502,7 +2627,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Accueil", miiTitle:"Mii", miiTag:"Bibliothèque de Miis Nitro · synchronisée au lancement",
       miiListHeading:"Miis", miiRefreshBtn:"Actualiser", miiEmptyHint:"Définissez d'abord votre chemin Dolphin dans les Paramètres.",
       miiPreviewLoading:"Sélectionnez un Mii",
-      miiSaveBtn:"Enregistrer dans Nitro", miiNewBtn:"Nouveau Mii", miiRefresh2Btn:"Recharger",
+      miiSaveBtn:"Enregistrer dans Nitro", miiNewBtn:"Nouveau Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identité", miiSubtabFace:"Visage", miiSubtabHair:"Cheveux", miiSubtabEyes:"Yeux",
       miiSubtabBrows:"Sourcils", miiSubtabNose:"Nez", miiSubtabMouth:"Bouche", miiSubtabExtras:"Extras",
       miiLblName:"Nom", miiLblGender:"Genre", miiOptMale:"Homme", miiOptFemale:"Femme",
@@ -2538,7 +2663,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Instalación de Dolphin", labelSetupIso:"ISO de Mario Kart Wii", setupContinueLabel:"Continuar",
       creditsBackBtn:"← Inicio", creditsTitle:"Créditos",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Launcher personalizado — versión 1.0.0",
+      creditsAppDesc:"Launcher personalizado — versión 1.0.1",
       creditsLicenseTitle:"Licencia",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Comunidad",
@@ -2564,7 +2689,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Inicio", miiTitle:"Mii", miiTag:"Biblioteca de Miis de Nitro · se sincroniza al jugar",
       miiListHeading:"Miis", miiRefreshBtn:"Actualizar", miiEmptyHint:"Primero configura tu ruta de Dolphin en Ajustes.",
       miiPreviewLoading:"Selecciona un Mii",
-      miiSaveBtn:"Guardar en Nitro", miiNewBtn:"Nuevo Mii", miiRefresh2Btn:"Recargar",
+      miiSaveBtn:"Guardar en Nitro", miiNewBtn:"Nuevo Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identidad", miiSubtabFace:"Rostro", miiSubtabHair:"Cabello", miiSubtabEyes:"Ojos",
       miiSubtabBrows:"Cejas", miiSubtabNose:"Nariz", miiSubtabMouth:"Boca", miiSubtabExtras:"Extras",
       miiLblName:"Nombre", miiLblGender:"Género", miiOptMale:"Masculino", miiOptFemale:"Femenino",
@@ -2600,7 +2725,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Installazione Dolphin", labelSetupIso:"ISO Mario Kart Wii", setupContinueLabel:"Continua",
       creditsBackBtn:"← Home", creditsTitle:"Crediti",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Launcher personalizzato — versione 1.0.0",
+      creditsAppDesc:"Launcher personalizzato — versione 1.0.1",
       creditsLicenseTitle:"Licenza",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
@@ -2626,7 +2751,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Home", miiTitle:"Mii", miiTag:"Libreria Mii di Nitro · si sincronizza al Play",
       miiListHeading:"Mii", miiRefreshBtn:"Aggiorna", miiEmptyHint:"Imposta prima il percorso di Dolphin nelle Impostazioni.",
       miiPreviewLoading:"Seleziona un Mii",
-      miiSaveBtn:"Salva in Nitro", miiNewBtn:"Nuovo Mii", miiRefresh2Btn:"Ricarica",
+      miiSaveBtn:"Salva in Nitro", miiNewBtn:"Nuovo Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identità", miiSubtabFace:"Viso", miiSubtabHair:"Capelli", miiSubtabEyes:"Occhi",
       miiSubtabBrows:"Sopracciglia", miiSubtabNose:"Naso", miiSubtabMouth:"Bocca", miiSubtabExtras:"Extra",
       miiLblName:"Nome", miiLblGender:"Genere", miiOptMale:"Maschio", miiOptFemale:"Femmina",
@@ -2662,7 +2787,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Instalação do Dolphin", labelSetupIso:"ISO do Mario Kart Wii", setupContinueLabel:"Continuar",
       creditsBackBtn:"← Início", creditsTitle:"Créditos",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Launcher personalizado — versão 1.0.0",
+      creditsAppDesc:"Launcher personalizado — versão 1.0.1",
       creditsLicenseTitle:"Licença",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Comunidade",
@@ -2688,7 +2813,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Início", miiTitle:"Mii", miiTag:"Biblioteca de Miis do Nitro · sincroniza ao jogar",
       miiListHeading:"Miis", miiRefreshBtn:"Atualizar", miiEmptyHint:"Defina primeiro o caminho do Dolphin nas Configurações.",
       miiPreviewLoading:"Selecione um Mii",
-      miiSaveBtn:"Salvar no Nitro", miiNewBtn:"Novo Mii", miiRefresh2Btn:"Recarregar",
+      miiSaveBtn:"Salvar no Nitro", miiNewBtn:"Novo Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identidade", miiSubtabFace:"Rosto", miiSubtabHair:"Cabelo", miiSubtabEyes:"Olhos",
       miiSubtabBrows:"Sobrancelhas", miiSubtabNose:"Nariz", miiSubtabMouth:"Boca", miiSubtabExtras:"Extras",
       miiLblName:"Nome", miiLblGender:"Gênero", miiOptMale:"Masculino", miiOptFemale:"Feminino",
@@ -2724,7 +2849,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin-installatie", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Doorgaan",
       creditsBackBtn:"← Start", creditsTitle:"Credits",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Eigen launcher — versie 1.0.0",
+      creditsAppDesc:"Eigen launcher — versie 1.0.1",
       creditsLicenseTitle:"Licentie",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
@@ -2750,7 +2875,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Start", miiTitle:"Mii", miiTag:"Nitro Mii-bibliotheek · synchroniseert bij Play",
       miiListHeading:"Miis", miiRefreshBtn:"Vernieuwen", miiEmptyHint:"Stel eerst je Dolphin-pad in bij Instellingen.",
       miiPreviewLoading:"Selecteer een Mii",
-      miiSaveBtn:"Opslaan in Nitro", miiNewBtn:"Nieuwe Mii", miiRefresh2Btn:"Herladen",
+      miiSaveBtn:"Opslaan in Nitro", miiNewBtn:"Nieuwe Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identiteit", miiSubtabFace:"Gezicht", miiSubtabHair:"Haar", miiSubtabEyes:"Ogen",
       miiSubtabBrows:"Wenkbrauwen", miiSubtabNose:"Neus", miiSubtabMouth:"Mond", miiSubtabExtras:"Extra's",
       miiLblName:"Naam", miiLblGender:"Geslacht", miiOptMale:"Man", miiOptFemale:"Vrouw",
@@ -2786,7 +2911,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Instalacja Dolphin", labelSetupIso:"ISO Mario Kart Wii", setupContinueLabel:"Dalej",
       creditsBackBtn:"← Start", creditsTitle:"Twórcy",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Własny launcher — wersja 1.0.0",
+      creditsAppDesc:"Własny launcher — wersja 1.0.1",
       creditsLicenseTitle:"Licencja",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Społeczność",
@@ -2812,7 +2937,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Start", miiTitle:"Mii", miiTag:"Biblioteka Mii Nitro · synchronizuje się przy Play",
       miiListHeading:"Mii", miiRefreshBtn:"Odśwież", miiEmptyHint:"Najpierw ustaw ścieżkę Dolphin w Ustawieniach.",
       miiPreviewLoading:"Wybierz Mii",
-      miiSaveBtn:"Zapisz w Nitro", miiNewBtn:"Nowy Mii", miiRefresh2Btn:"Przeładuj",
+      miiSaveBtn:"Zapisz w Nitro", miiNewBtn:"Nowy Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Tożsamość", miiSubtabFace:"Twarz", miiSubtabHair:"Włosy", miiSubtabEyes:"Oczy",
       miiSubtabBrows:"Brwi", miiSubtabNose:"Nos", miiSubtabMouth:"Usta", miiSubtabExtras:"Dodatki",
       miiLblName:"Imię", miiLblGender:"Płeć", miiOptMale:"Mężczyzna", miiOptFemale:"Kobieta",
@@ -2848,7 +2973,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin kurulumu", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Devam",
       creditsBackBtn:"← Ana Sayfa", creditsTitle:"Emek Verenler",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Özel launcher — sürüm 1.0.0",
+      creditsAppDesc:"Özel launcher — sürüm 1.0.1",
       creditsLicenseTitle:"Lisans",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Topluluk",
@@ -2874,7 +2999,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Ana Sayfa", miiTitle:"Mii", miiTag:"Nitro Mii kitaplığı · Play ile senkronize olur",
       miiListHeading:"Miiler", miiRefreshBtn:"Yenile", miiEmptyHint:"Önce Ayarlar'da Dolphin yolunu belirleyin.",
       miiPreviewLoading:"Bir Mii seçin",
-      miiSaveBtn:"Nitro'ya kaydet", miiNewBtn:"Yeni Mii", miiRefresh2Btn:"Yeniden yükle",
+      miiSaveBtn:"Nitro'ya kaydet", miiNewBtn:"Yeni Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Kimlik", miiSubtabFace:"Yüz", miiSubtabHair:"Saç", miiSubtabEyes:"Gözler",
       miiSubtabBrows:"Kaşlar", miiSubtabNose:"Burun", miiSubtabMouth:"Ağız", miiSubtabExtras:"Ekstralar",
       miiLblName:"İsim", miiLblGender:"Cinsiyet", miiOptMale:"Erkek", miiOptFemale:"Kadın",
@@ -2910,7 +3035,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Установка Dolphin", labelSetupIso:"ISO Mario Kart Wii", setupContinueLabel:"Продолжить",
       creditsBackBtn:"← Главная", creditsTitle:"Авторы",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Собственный лаунчер — версия 1.0.0",
+      creditsAppDesc:"Собственный лаунчер — версия 1.0.1",
       creditsLicenseTitle:"Лицензия",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Сообщество",
@@ -2936,7 +3061,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Главная", miiTitle:"Mii", miiTag:"Библиотека Mii Nitro · синхронизируется при запуске",
       miiListHeading:"Mii", miiRefreshBtn:"Обновить", miiEmptyHint:"Сначала укажите путь к Dolphin в Настройках.",
       miiPreviewLoading:"Выберите Mii",
-      miiSaveBtn:"Сохранить в Nitro", miiNewBtn:"Новый Mii", miiRefresh2Btn:"Перезагрузить",
+      miiSaveBtn:"Сохранить в Nitro", miiNewBtn:"Новый Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Личность", miiSubtabFace:"Лицо", miiSubtabHair:"Волосы", miiSubtabEyes:"Глаза",
       miiSubtabBrows:"Брови", miiSubtabNose:"Нос", miiSubtabMouth:"Рот", miiSubtabExtras:"Дополнительно",
       miiLblName:"Имя", miiLblGender:"Пол", miiOptMale:"Мужской", miiOptFemale:"Женский",
@@ -2972,7 +3097,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphinのインストール先", labelSetupIso:"マリオカートWii ISO", setupContinueLabel:"続ける",
       creditsBackBtn:"← ホーム", creditsTitle:"クレジット",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"カスタムランチャー — バージョン 1.0.0",
+      creditsAppDesc:"カスタムランチャー — バージョン 1.0.1",
       creditsLicenseTitle:"ライセンス",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"コミュニティ",
@@ -2998,7 +3123,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← ホーム", miiTitle:"Mii", miiTag:"Nitro Miiライブラリ · プレイ時に同期",
       miiListHeading:"Mii", miiRefreshBtn:"更新", miiEmptyHint:"まず設定でDolphinのパスを設定してください。",
       miiPreviewLoading:"Miiを選択してください",
-      miiSaveBtn:"Nitroに保存", miiNewBtn:"新しいMii", miiRefresh2Btn:"再読み込み",
+      miiSaveBtn:"Nitroに保存", miiNewBtn:"新しいMii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"基本情報", miiSubtabFace:"顔", miiSubtabHair:"髪", miiSubtabEyes:"目",
       miiSubtabBrows:"眉", miiSubtabNose:"鼻", miiSubtabMouth:"口", miiSubtabExtras:"その他",
       miiLblName:"名前", miiLblGender:"性別", miiOptMale:"男性", miiOptFemale:"女性",
@@ -3034,7 +3159,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin 설치 경로", labelSetupIso:"마리오 카트 Wii ISO", setupContinueLabel:"계속",
       creditsBackBtn:"← 홈", creditsTitle:"크레딧",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"커스텀 런처 — 버전 1.0.0",
+      creditsAppDesc:"커스텀 런처 — 버전 1.0.1",
       creditsLicenseTitle:"라이선스",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"커뮤니티",
@@ -3060,7 +3185,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← 홈", miiTitle:"Mii", miiTag:"Nitro Mii 라이브러리 · Play 시 동기화",
       miiListHeading:"Mii", miiRefreshBtn:"새로고침", miiEmptyHint:"먼저 설정에서 Dolphin 경로를 지정하세요.",
       miiPreviewLoading:"Mii를 선택하세요",
-      miiSaveBtn:"Nitro에 저장", miiNewBtn:"새 Mii", miiRefresh2Btn:"다시 불러오기",
+      miiSaveBtn:"Nitro에 저장", miiNewBtn:"새 Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"신원", miiSubtabFace:"얼굴", miiSubtabHair:"머리", miiSubtabEyes:"눈",
       miiSubtabBrows:"눈썹", miiSubtabNose:"코", miiSubtabMouth:"입", miiSubtabExtras:"기타",
       miiLblName:"이름", miiLblGender:"성별", miiOptMale:"남성", miiOptFemale:"여성",
@@ -3096,7 +3221,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin 安装位置", labelSetupIso:"马里奥赛车 Wii ISO", setupContinueLabel:"继续",
       creditsBackBtn:"← 主页", creditsTitle:"鸣谢",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"自定义启动器 — 版本 1.0.0",
+      creditsAppDesc:"自定义启动器 — 版本 1.0.1",
       creditsLicenseTitle:"许可证",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"社区",
@@ -3122,7 +3247,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← 主页", miiTitle:"Mii", miiTag:"Nitro Mii 库 · 游戏时同步",
       miiListHeading:"Mii", miiRefreshBtn:"刷新", miiEmptyHint:"请先在设置中设置 Dolphin 路径。",
       miiPreviewLoading:"选择一个 Mii",
-      miiSaveBtn:"保存到 Nitro", miiNewBtn:"新建 Mii", miiRefresh2Btn:"重新加载",
+      miiSaveBtn:"保存到 Nitro", miiNewBtn:"新建 Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"身份", miiSubtabFace:"脸型", miiSubtabHair:"头发", miiSubtabEyes:"眼睛",
       miiSubtabBrows:"眉毛", miiSubtabNose:"鼻子", miiSubtabMouth:"嘴巴", miiSubtabExtras:"其他",
       miiLblName:"名称", miiLblGender:"性别", miiOptMale:"男性", miiOptFemale:"女性",
@@ -3158,7 +3283,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"تثبيت Dolphin", labelSetupIso:"ISO الخاص بماريو كارت Wii", setupContinueLabel:"متابعة",
       creditsBackBtn:"← الرئيسية", creditsTitle:"الشكر والتقدير",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"مشغّل مخصص — الإصدار 1.0.0",
+      creditsAppDesc:"مشغّل مخصص — الإصدار 1.0.1",
       creditsLicenseTitle:"الترخيص",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"المجتمع",
@@ -3184,7 +3309,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← الرئيسية", miiTitle:"Mii", miiTag:"مكتبة Mii الخاصة بـ Nitro · تتزامن عند التشغيل",
       miiListHeading:"Mii", miiRefreshBtn:"تحديث", miiEmptyHint:"حدد مسار Dolphin أولاً في الإعدادات.",
       miiPreviewLoading:"اختر Mii",
-      miiSaveBtn:"حفظ في Nitro", miiNewBtn:"Mii جديد", miiRefresh2Btn:"إعادة التحميل",
+      miiSaveBtn:"حفظ في Nitro", miiNewBtn:"Mii جديد", miiRefresh2Label:"Random",
       miiSubtabIdentity:"الهوية", miiSubtabFace:"الوجه", miiSubtabHair:"الشعر", miiSubtabEyes:"العينان",
       miiSubtabBrows:"الحواجب", miiSubtabNose:"الأنف", miiSubtabMouth:"الفم", miiSubtabExtras:"إضافات",
       miiLblName:"الاسم", miiLblGender:"الجنس", miiOptMale:"ذكر", miiOptFemale:"أنثى",
@@ -3220,7 +3345,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin-installation", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Fortsätt",
       creditsBackBtn:"← Hem", creditsTitle:"Credits",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Egen launcher — version 1.0.0",
+      creditsAppDesc:"Egen launcher — version 1.0.1",
       creditsLicenseTitle:"Licens",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Community",
@@ -3246,7 +3371,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Hem", miiTitle:"Mii", miiTag:"Nitro Mii-bibliotek · synkas vid Play",
       miiListHeading:"Miis", miiRefreshBtn:"Uppdatera", miiEmptyHint:"Ange din Dolphin-sökväg i Inställningar först.",
       miiPreviewLoading:"Välj en Mii",
-      miiSaveBtn:"Spara till Nitro", miiNewBtn:"Ny Mii", miiRefresh2Btn:"Ladda om",
+      miiSaveBtn:"Spara till Nitro", miiNewBtn:"Ny Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identitet", miiSubtabFace:"Ansikte", miiSubtabHair:"Hår", miiSubtabEyes:"Ögon",
       miiSubtabBrows:"Ögonbryn", miiSubtabNose:"Näsa", miiSubtabMouth:"Mun", miiSubtabExtras:"Extra",
       miiLblName:"Namn", miiLblGender:"Kön", miiOptMale:"Man", miiOptFemale:"Kvinna",
@@ -3282,7 +3407,7 @@ function toast(msg, isError, sticky) {
       labelSetupDolphin:"Dolphin-asennus", labelSetupIso:"Mario Kart Wii ISO", setupContinueLabel:"Jatka",
       creditsBackBtn:"← Koti", creditsTitle:"Tekijät",
       creditsAppName:"Mario Kart Nitro",
-      creditsAppDesc:"Oma käynnistin — versio 1.0.0",
+      creditsAppDesc:"Oma käynnistin — versio 1.0.1",
       creditsLicenseTitle:"Lisenssi",
       creditsLicenseText:"NitroForge License",
       creditsCommunityTitle:"Yhteisö",
@@ -3308,7 +3433,7 @@ function toast(msg, isError, sticky) {
       navMii:"Mii", miiBackBtn:"← Koti", miiTitle:"Mii", miiTag:"Nitro Mii -kirjasto · synkronoituu Play-painikkeella",
       miiListHeading:"Miit", miiRefreshBtn:"Päivitä", miiEmptyHint:"Aseta ensin Dolphin-polku Asetuksissa.",
       miiPreviewLoading:"Valitse Mii",
-      miiSaveBtn:"Tallenna Nitroon", miiNewBtn:"Uusi Mii", miiRefresh2Btn:"Lataa uudelleen",
+      miiSaveBtn:"Tallenna Nitroon", miiNewBtn:"Uusi Mii", miiRefresh2Label:"Random",
       miiSubtabIdentity:"Identiteetti", miiSubtabFace:"Kasvot", miiSubtabHair:"Hiukset", miiSubtabEyes:"Silmät",
       miiSubtabBrows:"Kulmakarvat", miiSubtabNose:"Nenä", miiSubtabMouth:"Suu", miiSubtabExtras:"Muut",
       miiLblName:"Nimi", miiLblGender:"Sukupuoli", miiOptMale:"Mies", miiOptFemale:"Nainen",
@@ -3692,8 +3817,6 @@ window.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("keydown", e => { if (e.key === "Escape") closeAll(); });
 })();
 </script>
-</body>
-</html>
 <script>
 /* Patches: browse GameBanana, install into My Stuff/Patches, switch patches on and off. */
 (function(){
@@ -3880,3 +4003,5 @@ window.addEventListener("DOMContentLoaded", () => {
   applyPatchTexts();
 })();
 </script>
+</body>
+</html>

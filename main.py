@@ -41,9 +41,9 @@ def _import_webview():
     return webview
 
 DISCORD_URL = "https://discord.com/invite/wbU8vw8vJq"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 WEBVIEW2_DOWNLOAD_URL = "https://go.microsoft.com/fwlink/p/?LinkId=2124703"
-BUILD_STAMP = "v1.0.0"
+BUILD_STAMP = "v1.0.1"
 
 MANIFEST_URL = "https://raw.githubusercontent.com/nitroforge/NitroLauncher/main/manifest.json"
 

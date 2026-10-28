@@ -1,6 +1,6 @@
                   NITROFORGE SOURCE-AVAILABLE LICENSE
-                             Version 1.1
-                   License identifier: LicenseRef-NitroForge-1.1
+                             Version 2.0
+                   License identifier: LicenseRef-NitroForge-2.0
 
  Copyright (c) 2026 NitroForge. All rights reserved.
 
@@ -17,14 +17,14 @@ build on it.
   This license says in plain terms what you may do without asking, what you
 may not do without written permission, and how to ask for permission. Mario
 Kart, Wii, Mii and related names belong to Nintendo and are not licensed
-here.
+here. Nintendo is not connected to this project.
 
   The Preamble explains the license and is not part of the terms. The terms
 and conditions follow.
 
                        TERMS AND CONDITIONS
 
-  0. Definitions.
+  1. Definitions.
 
   "You" means anyone who uses, reads, copies or otherwise deals with
 NitroForge Materials.
@@ -42,24 +42,41 @@ other people, for example fonts and libraries such as three.js.
   "Official release" means a release published by NitroForge on the official
 NitroForge GitHub page.
 
-  1. What this license covers.
+  "Your Content" means what you make or own yourself and use with the
+launcher, for example your save data, your Miis, your ghosts and the mods and
+files you put into your own My Stuff folder.
 
-  This license covers NitroForge Materials.
+  2. What this license covers, and what it does not.
 
-  NitroForge Materials do NOT include Third-Party Materials. Third-Party
-Materials stay under their own licenses, which are listed in
-THIRD_PARTY_NOTICES.md. This license does not change them.
+  2.1 This license covers NitroForge Materials.
 
-  This license also does not cover anything owned by Nintendo or other
-companies. No Nintendo content is licensed here. This includes game data and
-artwork, for example the Mii face resource file (RFL_Res.dat), which is not
-part of this repository and is only built into the official release, the Mii
-body models (miiMaleBody.glb, miiFemaleBody.glb), the Mii Channel icons and
-the symbols taken from the game fonts. Files that a user takes from their own
-game stay the property of their owners. Mario Kart, Wii, Mii and related
-names, characters and resources belong to Nintendo.
+  2.2 It does not cover Third-Party Materials. They stay under their own
+licenses, which are listed in THIRD_PARTY_NOTICES.md. This license does not
+change them.
 
-  2. What you may do (no permission needed).
+  2.3 It does not cover anything owned by Nintendo or other companies. No
+Nintendo content is licensed here. This includes game data and artwork, for
+example the Mii face resource file (RFL_Res.dat), which is not part of this
+repository and is only built into the official release, the Mii body models
+(miiMaleBody.glb, miiFemaleBody.glb), the Mii Channel icons and the symbols
+taken from the game fonts. Files that a user takes from their own game stay
+the property of their owners. Mario Kart, Wii, Mii and related names,
+characters and resources belong to Nintendo.
+
+  2.4 It does not cover Your Content. Your Content stays yours. NitroForge
+gets no rights in it through this license.
+
+  2.5 The launcher does not contain the game. To play, you need your own
+legal copy of Mario Kart Wii. NitroForge does not provide, sell or support
+game copies, and you are responsible for following the laws and the terms
+that apply to the game, the emulator and any service you use.
+
+  2.6 The launcher starts other programs, for example the Dolphin emulator,
+and can load content from other websites, for example GameBanana. These are
+not part of NitroForge Materials. Their own terms apply, and NitroForge is
+not responsible for them or for the mods you download from them.
+
+  3. What you may do (no permission needed).
 
     a) Read and study the source code.
     b) Download the official release from the official NitroForge GitHub
@@ -71,7 +88,7 @@ names, characters and resources belong to Nintendo.
        NitroForge, for example in a pull request.
     e) Report bugs and ideas.
 
-  3. What you may not do (without written permission from NitroForge).
+  4. What you may not do (without written permission from NitroForge).
 
     a) Copy, redistribute, publish or host NitroForge Materials, in whole or
        in part, in original or modified form, on any website, store, server
@@ -89,15 +106,18 @@ names, characters and resources belong to Nintendo.
        by NitroForge.
     f) Bypass or help others bypass any update, safety or save-protection
        feature of the launcher.
+    g) Take apart, decompile or reverse engineer the launcher program to
+       get around this license. This does not limit any right that the law
+       gives you and that cannot be excluded by contract.
 
-  4. Asking for permission.
+  5. Asking for permission.
 
   Permission is only valid if NitroForge gives it in writing (a Discord
 message from an official NitroForge account or an email counts). Permission
 can be limited in time or scope and can be taken back for future use.
 Contact: via the official NitroForge Discord server or GitHub page.
 
-  5. Contributions.
+  6. Contributions.
 
   If you send NitroForge code, art or other material (for example a pull
 request), you confirm that you wrote it or have the right to share it, and
@@ -105,28 +125,48 @@ you give NitroForge a free, permanent, worldwide right to use, change and
 distribute it as part of NitroForge Materials, including under other
 licenses. You keep credit for your work where it is practical.
 
-
-  6. Ending of rights.
+  7. Ending of rights.
 
   If you break this license, your rights under it end at once. NitroForge
 may also report copies to hosting providers and ask for their removal.
+Sections 2, 7, 8, 9 and 10 stay in force after your rights end.
 
-  7. No warranty, limited liability.
+  8. No warranty, limited liability.
 
-  NitroForge Materials are provided "as is", without any warranty. To the
-extent allowed by law, NitroForge is not liable for damage that comes from
-using or not being able to use them, including lost saves or data. Nothing
-in this license limits liability that cannot be limited by law.
+  8.1 NitroForge Materials are provided free of charge and "as is", without
+any warranty, as far as the law allows.
 
-  8. General.
+  8.2 NitroForge is not liable for damage that comes from using or not being
+able to use NitroForge Materials, including lost saves or data, except for
+damage that NitroForge causes on purpose or by gross negligence.
 
-  If a part of this license is not valid, the rest stays valid. This license
-is governed by the laws of Austria, and the courts of Vienna are
-responsible, unless mandatory law says otherwise.
+  8.3 Nothing in this license limits liability for injury to life, body or
+health, liability under mandatory product liability law, or any other
+liability that cannot be limited by law.
 
-  Version 1.1 only clarifies what is covered (the Mii renderer and its face
-resource readers) and what is not (Nintendo game data). The permissions and
-restrictions are the same as in Version 1.0.
+  9. Changes to this license.
+
+  NitroForge may publish a new version of this license. A new version applies
+to releases published after it, and to your later use of them. For a release
+you already have, the version that came with it stays valid.
+
+  10. General.
+
+  10.1 If a part of this license is not valid, the rest stays valid, and the
+invalid part is replaced by a valid one that comes closest to its purpose.
+
+  10.2 NitroForge not enforcing a right at once does not mean it gives that
+right up.
+
+  10.3 This license is the whole agreement between you and NitroForge about
+NitroForge Materials. Changes need to be in writing. The English text is the
+one that counts. A translation is only there to help you understand it.
+
+  10.4 This license is governed by the laws of Austria, without its conflict
+of law rules and without the UN Convention on Contracts for the International
+Sale of Goods. The courts of Vienna are responsible. If you are a consumer,
+the mandatory consumer protection rules of the country where you live stay
+untouched, and you can also use the courts that those rules give you.
 
                     END OF TERMS AND CONDITIONS
 
@@ -136,6 +176,13 @@ restrictions are the same as in Version 1.0.
 the start of the file:
 
     Copyright (c) 2026 NitroForge. All rights reserved.
-    Licensed under the NitroForge Source-Available License, Version 1.1
-    (LicenseRef-NitroForge-1.1). See LICENSE.txt in the root folder.
+    Licensed under the NitroForge Source-Available License, Version 2.0
+    (LicenseRef-NitroForge-2.0). See LICENSE.txt in the root folder.
 
+               What Changed From Version 1.1 (not part of the terms)
+
+  The permissions and restrictions are the same as in Version 1.1, with one
+addition (4 g). New: your own content stays yours (2.4), the launcher does
+not contain the game (2.5), other programs and websites are not covered (2.6),
+rules for new license versions (9), clearer liability, ending and general
+terms (7, 8, 10).

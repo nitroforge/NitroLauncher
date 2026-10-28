@@ -2,8 +2,8 @@
 
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
+    filevers=(1, 0, 1, 0),
+    prodvers=(1, 0, 1, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -19,12 +19,12 @@ VSVersionInfo(
           [
             StringStruct('CompanyName', 'mkwiichannel'),
             StringStruct('FileDescription', 'Mario Kart Nitro Launcher'),
-            StringStruct('FileVersion', '1.0.0.0'),
+            StringStruct('FileVersion', '1.0.1.0'),
             StringStruct('InternalName', 'MarioKartNitro'),
             StringStruct('LegalCopyright', 'NitroForge - NitroForge License'),
             StringStruct('OriginalFilename', 'MarioKartNitro.exe'),
             StringStruct('ProductName', 'Mario Kart Nitro'),
-            StringStruct('ProductVersion', '1.0.0.0'),
+            StringStruct('ProductVersion', '1.0.1.0'),
           ],
         )
       ]
