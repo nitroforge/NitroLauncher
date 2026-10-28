@@ -26,6 +26,7 @@ import urllib.request
 import uuid
 import webbrowser
 import modpack_sync
+import patches
 import xml.etree.ElementTree as ET
 import zipfile
 
@@ -743,6 +744,9 @@ class Api:
         last_err = ""
         for root, _dirs, files in os.walk(src):
             rel = os.path.relpath(root, src)
+            if rel == ".":
+                # "Patches" is handled below: only the enabled ones are copied.
+                _dirs[:] = [d for d in _dirs if d.lower() != "patches"]
             out_dir = dst if rel == "." else os.path.join(dst, rel)
             for name in files:
                 a, b = os.path.join(root, name), os.path.join(out_dir, name)
@@ -759,6 +763,13 @@ class Api:
                 except OSError as e:
                     failed += 1
                     last_err = str(e)
+        try:
+            pc, ps, pf, pe = patches.merge_enabled(os.path.join(src, "Patches"), dst)
+            copied, skipped, failed = copied + pc, skipped + ps, failed + pf
+            last_err = last_err or pe
+        except OSError as e:
+            failed += 1
+            last_err = str(e)
         if failed:
             return "My Stuff: %d copied, %d failed (%s)" % (copied, failed, last_err)
         if copied:
@@ -1154,6 +1165,96 @@ class Api:
             except OSError:
                 continue
         return {"ok": True, "added": added, "folder": dst}
+
+
+    # ---------- Patches (GameBanana) ----------
+    def _patches_dir(self):
+        cfg = load_config()
+        base = str(cfg.get("mystuff_directory") or "").strip() or os.path.join(app_data_dir(), "MyStuff")
+        return os.path.join(base, "Patches")
+
+    def patches_search(self, query="", page=1):
+        """Newest Mario Kart Wii mods on GameBanana, or search results."""
+        try:
+            gid = int(load_config().get("patches_game_id") or patches.DEFAULT_GAME_ID)
+            res = patches.search(query, page, gid)
+            have = {str(p.get("mod_id")) for p in patches.list_installed(self._patches_dir())}
+            for it in res["items"]:
+                it["installed"] = str(it.get("mod_id")) in have
+            return dict(res, ok=True)
+        except patches.PatchError as e:
+            return {"ok": False, "error": str(e)}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e}
+
+    def patches_files(self, mod_id):
+        try:
+            return dict(patches.mod_files(mod_id), ok=True)
+        except patches.PatchError as e:
+            return {"ok": False, "error": str(e)}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e}
+
+    def patches_install(self, mod_id, file_id=None):
+        """Downloads a mod's file (the chosen one, or the first) and installs it as a patch."""
+        try:
+            info = patches.mod_files(mod_id)
+            files = info["files"]
+            if not files:
+                return {"ok": False, "error": "This mod has no download the launcher can use. Open it on GameBanana."}
+            chosen = next((f for f in files if str(f.get("file_id")) == str(file_id)), None) if file_id else None
+            if chosen is None:
+                zips = [f for f in files if f["name"].lower().endswith(".zip")]
+                chosen = (zips or files)[0]
+            rec = patches.install(self._patches_dir(), info["mod"] or {"mod_id": mod_id, "name": "Patch %s" % mod_id}, chosen)
+            return {"ok": True, "patch": rec}
+        except patches.PatchError as e:
+            return {"ok": False, "error": str(e)}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e}
+
+    def patches_installed(self):
+        try:
+            return {"ok": True, "items": patches.list_installed(self._patches_dir())}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e, "items": []}
+
+    def patches_set_enabled(self, folder, enabled):
+        try:
+            patches.set_enabled(self._patches_dir(), folder, enabled)
+            return {"ok": True}
+        except patches.PatchError as e:
+            return {"ok": False, "error": str(e)}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e}
+
+    def patches_remove(self, folder):
+        try:
+            patches.remove(self._patches_dir(), folder)
+            return {"ok": True}
+        except patches.PatchError as e:
+            return {"ok": False, "error": str(e)}
+        except Exception as e:
+            return {"ok": False, "error": "Patches: %s" % e}
+
+    def patches_open_page(self, url):
+        """Opens a mod's GameBanana page in the browser (only GameBanana addresses)."""
+        if patches._is_gb_url(str(url or "")):
+            webbrowser.open(url)
+            return {"ok": True}
+        return {"ok": False}
+
+    def patches_open_folder(self):
+        path = self._patches_dir()
+        try:
+            os.makedirs(path, exist_ok=True)
+            if sys.platform == "win32":
+                os.startfile(path)  # noqa
+            else:
+                webbrowser.open("file://" + path)
+            return {"ok": True, "folder": path}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
 
 
     # ---------- launch ----------

@@ -176,6 +176,79 @@
   }
   .empty-panel b{ display:block; color:var(--text-dim); font-family:var(--display); font-weight:600; font-size:15px; margin-bottom:6px; }
 
+
+  /* ---- Patches ---- */
+  .pt-open{ display:inline-flex; align-items:center; gap:7px; }
+  .pt-bar{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:10px; flex:0 0 auto; }
+  .pt-search{ display:flex; gap:8px; flex:1 1 260px; min-width:220px; }
+  .pt-search input{ flex:1; background:var(--bg-2); border:1px solid var(--border); color:var(--text); font-family:var(--body); font-size:13px; padding:10px 13px; border-radius:9px; outline:none; }
+  .pt-search input:focus{ border-color:var(--blue); }
+  .pt-search .btn{ box-sizing:border-box; padding:10px 16px; font-size:13px; }
+  .pt-folder{ padding:10px 14px; }
+  .pt-hint{ color:var(--text-faint); font-size:12px; margin:0 0 12px; flex:0 0 auto; }
+  .pt-body{ flex:1 1 auto; min-height:0; overflow:auto; padding:2px 4px 16px 0; scrollbar-width:thin; scrollbar-color:rgba(255,140,0,.4) transparent; }
+  .pt-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px; }
+  .pt-card{ background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; transition:border-color .15s, transform .15s; }
+  .pt-card:hover{ border-color:var(--border-strong); transform:translateY(-2px); }
+  .pt-thumb{ aspect-ratio:16/10; background:linear-gradient(135deg,#1d0f33,#2a1450); display:flex; align-items:center; justify-content:center; color:var(--text-faint); overflow:hidden; }
+  .pt-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pt-info{ padding:11px 13px 13px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .pt-name{ all:unset; cursor:pointer; font-family:var(--display); font-weight:700; font-size:16px; line-height:1.15; color:var(--text); }
+  .pt-name:hover{ color:var(--blue-2); }
+  .pt-meta{ font-size:11.5px; color:var(--text-faint); display:flex; gap:10px; flex-wrap:wrap; }
+  .pt-act{ margin-top:auto; padding-top:6px; }
+  .pt-act .btn{ box-sizing:border-box; width:100%; justify-content:center; padding:9px 10px; font-size:12.5px; }
+  .pt-act .btn[disabled]{ opacity:.55; cursor:default; }
+  .pt-modal{ position:fixed; inset:0; background:rgba(5,3,12,.78); z-index:60; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .pt-modal[hidden]{ display:none !important; }
+  .pt-dlg{ background:var(--panel); border:1px solid var(--border-strong); border-radius:14px; width:min(860px,100%); max-height:100%; overflow:auto; padding:18px 20px 20px; display:flex; flex-direction:column; gap:12px; scrollbar-width:thin; }
+  .pt-dlg h3{ margin:0; font-family:var(--display); font-size:21px; }
+  .pt-dtop{ display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+  .pt-dsub{ font-size:12px; color:var(--text-faint); display:flex; gap:12px; flex-wrap:wrap; margin-top:4px; }
+  .pt-big{ width:100%; aspect-ratio:16/9; background:#12091f; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; color:var(--text-faint); font-size:13px; }
+  .pt-big img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .pt-strip{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pt-strip img{ height:64px; border-radius:6px; border:2px solid transparent; cursor:pointer; flex:0 0 auto; opacity:.75; }
+  .pt-strip img.on{ border-color:#ffa513; opacity:1; }
+  .pt-desc{ font-size:13px; color:var(--text-dim); white-space:pre-wrap; line-height:1.5; max-height:200px; overflow:auto; scrollbar-width:thin; }
+  .pt-h{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint); margin:2px 0 -4px; }
+  .pt-dact{ display:flex; gap:10px; flex-wrap:wrap; }
+  .pt-dact .btn{ box-sizing:border-box; padding:10px 18px; font-size:13px; }
+  .pt-card .pt-thumb{ cursor:pointer; }
+  /* Patches page: same look as Settings (section title, rows with thin dividers) */
+  #patches .set-title{ margin:14px 0 0; }
+  #patches .pt-grid{ grid-template-columns:1fr 1fr; gap:0 56px; }
+  #patches .pt-card{ background:none; border:none; border-radius:0; flex-direction:row; align-items:center; gap:16px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); transform:none; }
+  #patches .pt-card:hover{ border-bottom-color:var(--border-strong); }
+  #patches .pt-thumb{ width:156px; flex:0 0 156px; border:1px solid var(--border); border-radius:9px; }
+  #patches .pt-info{ padding:0; display:grid; grid-template-columns:1fr auto; column-gap:14px; row-gap:3px; align-items:center; }
+  #patches .pt-name, #patches .pt-meta{ grid-column:1; }
+  #patches .pt-act{ grid-column:2; grid-row:1 / span 2; margin:0; padding:0; }
+  #patches .pt-act .btn{ width:auto; min-width:92px; padding:8px 16px; box-shadow:none !important; }
+  #patches .pt-list{ gap:0; }
+  #patches .pt-row{ background:none; border:none; border-radius:0; padding:11px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+  #patches .pt-row .pt-thumb{ width:156px; }
+  #patches .pt-row .pt-info{ display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:3px; }
+  @media(max-width:860px){ #patches .pt-grid{ grid-template-columns:1fr; } }
+  .pt-grid[hidden], .pt-list[hidden], .pt-more [hidden]{ display:none !important; }
+  .pt-list{ display:flex; flex-direction:column; gap:10px; }
+  .pt-row{ display:flex; align-items:center; gap:14px; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:10px 14px; }
+  .pt-row .pt-thumb{ width:84px; aspect-ratio:16/10; border-radius:8px; flex:0 0 auto; }
+  .pt-row .pt-info{ padding:0; flex:1; min-width:0; }
+  .pt-warn{ color:#ffb74d; font-size:11.5px; }
+  .pt-switch{ position:relative; width:40px; height:22px; flex:0 0 auto; cursor:pointer; }
+  .pt-switch input{ position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; }
+  .pt-switch i{ position:absolute; inset:0; border-radius:20px; background:rgba(255,255,255,0.14); transition:background .2s; pointer-events:none; }
+  .pt-switch i::after{ content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 2px 5px rgba(0,0,0,.4); }
+  .pt-switch input:checked + i{ background:linear-gradient(100deg,#ff6b00,#ffa513); }
+  .pt-switch input:checked + i::after{ transform:translateX(18px); }
+  .pt-del{ all:unset; box-sizing:border-box; cursor:pointer; color:var(--text-dim); font-size:12px; font-weight:600; padding:8px 12px; border:1px solid var(--border); border-radius:9px; }
+  .pt-del:hover{ color:#ff7b7b; border-color:rgba(255,100,100,.5); }
+  .pt-msg{ color:var(--text-dim); font-size:13px; text-align:center; padding:34px 10px; }
+  .pt-more{ text-align:center; padding:16px 0 4px; }
+  .pt-spin{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.25); border-top-color:#fff; border-radius:50%; animation:ptspin .8s linear infinite; vertical-align:-2px; margin-right:6px; }
+  @keyframes ptspin{ to{ transform:rotate(360deg); } }
+
   .toast{
     position:fixed; bottom:22px; right:22px; max-width:480px; z-index:50; white-space:pre-wrap;
     background:var(--panel-hover); border:1px solid var(--border-strong); border-radius:11px;
@@ -619,7 +692,7 @@
 <div class="row"><input type="text" placeholder="Not set" id="settingsIsoPath" readonly /><button class="browse" id="browseIsoBtn"><span class="browseLabel">Browse</span></button></div>
 </div>
 <div class="field"><label id="labelMyStuff">My Stuff folder</label>
-<div class="row"><input type="text" id="settingsMyStuff" readonly /><button class="browse" id="browseMyStuffBtn"><span class="browseLabel">Browse</span></button></div>
+<div class="row"><input type="text" id="settingsMyStuff" readonly /><button class="browse" id="browseMyStuffBtn"><span class="browseLabel">Browse</span></button><button class="browse pt-open" id="openPatchesBtn" type="button" title="Patches" aria-label="Patches"><img id="patchesLogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAgCAYAAAAFQMh/AAAC6UlEQVR42tWXvY4cRRSFv1M/3TvDXwIhKYEDCyxEQsxDEFjye/EEPAUiJiRCrLWAhP8WWw7wbE931b0EPdMzs7v2zkoza3GllqpLVXXurTp17ylxIDtJ0eW7fS7oStV148OhgOWBrjpVgapAnM3euXw6FLAL2gD3vxgA+PU3QBwfWA4O4M3aFe7UGmVv1HpU8FnMnoV/1M78aBFPpIkGGMgZVMiCZV84OvDazn//CkJlOHsFNfP5d3+6y+iK66jAwY2yIlc+qRRVXHcQ8bZ1y8IvP35GU+HBw1eucsB7fFs7WMQfauZd7vjn8YMxyv6CbHPqsYGhEMiYjQzOaQ5vhT0ocAAN+HR69abR78f+/8DLVMDD3bE6gSue8Pz0HiiB17sBjrlhiB3JA75NKBlV4a016tbATZx71GIsfD7j/OweXjSmQxkmAw/0p88IKWJanahrp1TeGjjGBeYnI3C8oK+QVprHTVSN1SkGwI0kcZ34SbMY3bU/8JPT+4TrSCTDBX72evU/xvT3iyXgV8TI+83VViqv//iaqjjpp7Vi3G0b7j6dVQ3G4vQZWUIuJIHG2P56+oa2bQEnF+fLhy9xOUPPph7HJIocp0xyaaLBpXZhTmKx8Tw2BCpandd6bEqJWuvOtmNzWM1N6w23xy8Y4n4730/FvpIkHFFDxWrk+csOXGj7IsmI1uBaMkxzBX2fSGpovMHCctRMe3ymcXl5ILsISciZQJ1I1EBvn1BCQVuknMiWc+ty4+lPn2J2y1sm58n5m9GhSd6O/Pjm+3N6y1AGXZtAohtySCVjODUukbUMoblCtPX12zxZluAZDx3RNtE4hVgzrRnLy75eofkHydsLUYMx+7jl5x/mN78iiEQzajfw7aMN8UyBRem0V8pMQ8RUwBOLfwMDDcHXC0FwVmmQ3X4V2rZQt/K1v0MM3JizZkk+lbtVHka2WnnT796galww6DDVSXHLvXU7XnI7IlVSk+Bi2IuP/wGWCVp+hf5auwAAAABJRU5ErkJggg==" width="26" height="26" alt="GameBanana" style="image-rendering:pixelated"></button></div>
 </div>
 </div>
 <div class="set-col">
@@ -671,6 +744,27 @@
 </div>
 <div class="set-actions"><button class="btn" id="openDiscordBtn"> <svg width="16" height="16" viewbox="0 0 127.14 96.36" fill="currentColor" style="flex-shrink: 0;"> <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"></path> </svg> <span id="openDiscordLabel">Open Discord</span> </button><button class="btn btn-primary" id="saveSettingsBtn"><span id="saveSettingsLabel">Save settings</span></button></div>
 </section>
+<section class="screen" id="patches">
+<div class="sub-head"><button class="back" id="patchesBackBtn" type="button">← Settings</button>
+<h2 id="patchesTitle">Patches</h2>
+<div class="tag" id="patchesTag">Custom textures and mods from GameBanana</div>
+</div>
+<div class="pt-bar">
+<div class="seg" id="patchesTabs" role="group"><button type="button" class="active" data-tab="browse" id="patchesTabBrowse">Browse</button><button type="button" data-tab="installed" id="patchesTabInstalled">Installed</button></div>
+<form class="pt-search" id="patchesSearchForm" autocomplete="off"><input type="text" id="patchesSearch" maxlength="80" /><button class="btn btn-primary" type="submit"><span id="patchesSearchBtn">Search</span></button></form>
+<button class="browse pt-folder" id="patchesFolderBtn" type="button"><span id="patchesOpenFolder">Open folder</span></button>
+</div>
+<div class="pt-hint" id="patchesHint"></div>
+<div class="set-title" id="patchesSection"></div>
+<div class="pt-body" id="patchesBody">
+<div class="pt-grid" id="patchesGrid"></div>
+<div class="pt-list" id="patchesList" hidden></div>
+<div class="pt-msg" id="patchesMsg"></div>
+<div class="pt-modal" id="ptModal" hidden><div class="pt-dlg" id="ptDlg"></div></div>
+<div class="pt-more"><button class="btn btn-ghost" id="patchesMoreBtn" type="button" hidden><span id="patchesLoadMore">Load more</span></button></div>
+</div>
+</section>
+
 <section class="screen" id="setup">
 <div class="sub-head"><button class="back" onclick="go('home')">← Home</button>
 <h2 id="setupTitle">Setup</h2>
@@ -3600,3 +3694,189 @@ window.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+<script>
+/* Patches: browse GameBanana, install into My Stuff/Patches, switch patches on and off. */
+(function(){
+  const PT = {
+    en:{sectionNew:"Newest on GameBanana",sectionInstalled:"Installed patches",patchesBtn:"Patches",patchesTitle:"Patches",patchesTag:"Custom textures and mods from GameBanana",patchesBackBtn:"← Settings",patchesTabBrowse:"Browse",patchesTabInstalled:"Installed",patchesSearchBtn:"Search",patchesLoadMore:"Load more",patchesOpenFolder:"Open folder",
+      descTitle:"Description",noDesc:"No description.",noPics:"No pictures.",filesTitle:"Files",close:"Close",install:"Install",installed:"Installed",installing:"Installing…",none:"Nothing found.",noneInstalled:"No patches installed yet. Use Browse to find some.",remove:"Remove",removeAsk:"Remove this patch?",layoutWarn:"Unknown layout: may not apply",onGB:"Open on GameBanana",done:"Installed:",files:"files",search:"Search GameBanana…",hint:"Enabled patches are added to My Stuff when you press Play.",loading:"Loading…",by:"by"},
+    de:{sectionNew:"Neu auf GameBanana",sectionInstalled:"Installierte Patches",patchesBtn:"Patches",patchesTitle:"Patches",patchesTag:"Eigene Texturen und Mods von GameBanana",patchesBackBtn:"← Einstellungen",patchesTabBrowse:"Durchsuchen",patchesTabInstalled:"Installiert",patchesSearchBtn:"Suchen",patchesLoadMore:"Mehr laden",patchesOpenFolder:"Ordner öffnen",
+      descTitle:"Beschreibung",noDesc:"Keine Beschreibung.",noPics:"Keine Bilder.",filesTitle:"Dateien",close:"Schließen",install:"Installieren",installed:"Installiert",installing:"Installiere…",none:"Nichts gefunden.",noneInstalled:"Noch keine Patches installiert. Stöbere unter „Durchsuchen“.",remove:"Entfernen",removeAsk:"Diesen Patch entfernen?",layoutWarn:"Unbekanntes Layout: wirkt evtl. nicht",onGB:"Auf GameBanana öffnen",done:"Installiert:",files:"Dateien",search:"GameBanana durchsuchen…",hint:"Aktivierte Patches werden beim Spielen zu My Stuff hinzugefügt.",loading:"Lädt…",by:"von"},
+    fr:{sectionNew:"Nouveautés sur GameBanana",sectionInstalled:"Patches installés",patchesBtn:"Patches",patchesTitle:"Patches",patchesTag:"Textures et mods personnalisés de GameBanana",patchesBackBtn:"← Paramètres",patchesTabBrowse:"Parcourir",patchesTabInstalled:"Installés",patchesSearchBtn:"Rechercher",patchesLoadMore:"Charger plus",patchesOpenFolder:"Ouvrir le dossier",
+      install:"Installer",installed:"Installé",installing:"Installation…",none:"Rien trouvé.",noneInstalled:"Aucun patch installé. Utilisez Parcourir pour en trouver.",remove:"Supprimer",removeAsk:"Supprimer ce patch ?",layoutWarn:"Structure inconnue : peut ne pas s'appliquer",onGB:"Ouvrir sur GameBanana",done:"Installé :",files:"fichiers",search:"Rechercher sur GameBanana…",hint:"Les patches activés sont ajoutés à My Stuff quand vous appuyez sur Jouer.",loading:"Chargement…",by:"par"},
+    es:{sectionNew:"Novedades en GameBanana",sectionInstalled:"Parches instalados",patchesBtn:"Parches",patchesTitle:"Parches",patchesTag:"Texturas y mods personalizados de GameBanana",patchesBackBtn:"← Ajustes",patchesTabBrowse:"Explorar",patchesTabInstalled:"Instalados",patchesSearchBtn:"Buscar",patchesLoadMore:"Cargar más",patchesOpenFolder:"Abrir carpeta",
+      install:"Instalar",installed:"Instalado",installing:"Instalando…",none:"No se encontró nada.",noneInstalled:"Aún no hay parches instalados. Usa Explorar para encontrarlos.",remove:"Quitar",removeAsk:"¿Quitar este parche?",layoutWarn:"Estructura desconocida: puede no aplicarse",onGB:"Abrir en GameBanana",done:"Instalado:",files:"archivos",search:"Buscar en GameBanana…",hint:"Los parches activados se añaden a My Stuff al pulsar Jugar.",loading:"Cargando…",by:"por"},
+    it:{sectionNew:"Novità su GameBanana",sectionInstalled:"Patch installate",patchesBtn:"Patch",patchesTitle:"Patch",patchesTag:"Texture e mod personalizzate da GameBanana",patchesBackBtn:"← Impostazioni",patchesTabBrowse:"Sfoglia",patchesTabInstalled:"Installate",patchesSearchBtn:"Cerca",patchesLoadMore:"Carica altro",patchesOpenFolder:"Apri cartella",
+      install:"Installa",installed:"Installata",installing:"Installazione…",none:"Nessun risultato.",noneInstalled:"Nessuna patch installata. Usa Sfoglia per trovarne.",remove:"Rimuovi",removeAsk:"Rimuovere questa patch?",layoutWarn:"Struttura sconosciuta: potrebbe non funzionare",onGB:"Apri su GameBanana",done:"Installata:",files:"file",search:"Cerca su GameBanana…",hint:"Le patch attive vengono aggiunte a My Stuff quando premi Gioca.",loading:"Caricamento…",by:"di"},
+    pt:{sectionNew:"Novidades no GameBanana",sectionInstalled:"Patches instalados",patchesBtn:"Patches",patchesTitle:"Patches",patchesTag:"Texturas e mods personalizados do GameBanana",patchesBackBtn:"← Definições",patchesTabBrowse:"Explorar",patchesTabInstalled:"Instalados",patchesSearchBtn:"Pesquisar",patchesLoadMore:"Carregar mais",patchesOpenFolder:"Abrir pasta",
+      install:"Instalar",installed:"Instalado",installing:"A instalar…",none:"Nada encontrado.",noneInstalled:"Ainda não há patches instalados. Use Explorar para encontrar.",remove:"Remover",removeAsk:"Remover este patch?",layoutWarn:"Estrutura desconhecida: pode não funcionar",onGB:"Abrir no GameBanana",done:"Instalado:",files:"ficheiros",search:"Pesquisar no GameBanana…",hint:"Os patches ativados são adicionados ao My Stuff ao carregar em Jogar.",loading:"A carregar…",by:"por"},
+    nl:{sectionNew:"Nieuw op GameBanana",sectionInstalled:"Geïnstalleerde patches",patchesBtn:"Patches",patchesTitle:"Patches",patchesTag:"Eigen texturen en mods van GameBanana",patchesBackBtn:"← Instellingen",patchesTabBrowse:"Bladeren",patchesTabInstalled:"Geïnstalleerd",patchesSearchBtn:"Zoeken",patchesLoadMore:"Meer laden",patchesOpenFolder:"Map openen",
+      install:"Installeren",installed:"Geïnstalleerd",installing:"Installeren…",none:"Niets gevonden.",noneInstalled:"Nog geen patches geïnstalleerd. Gebruik Bladeren om er te vinden.",remove:"Verwijderen",removeAsk:"Deze patch verwijderen?",layoutWarn:"Onbekende indeling: werkt mogelijk niet",onGB:"Openen op GameBanana",done:"Geïnstalleerd:",files:"bestanden",search:"Zoeken op GameBanana…",hint:"Ingeschakelde patches worden aan My Stuff toegevoegd wanneer je op Spelen drukt.",loading:"Laden…",by:"door"},
+    pl:{sectionNew:"Najnowsze na GameBanana",sectionInstalled:"Zainstalowane łatki",patchesBtn:"Łatki",patchesTitle:"Łatki",patchesTag:"Własne tekstury i mody z GameBanana",patchesBackBtn:"← Ustawienia",patchesTabBrowse:"Przeglądaj",patchesTabInstalled:"Zainstalowane",patchesSearchBtn:"Szukaj",patchesLoadMore:"Wczytaj więcej",patchesOpenFolder:"Otwórz folder",
+      install:"Zainstaluj",installed:"Zainstalowano",installing:"Instalowanie…",none:"Nic nie znaleziono.",noneInstalled:"Brak zainstalowanych łatek. Użyj Przeglądaj, aby je znaleźć.",remove:"Usuń",removeAsk:"Usunąć tę łatkę?",layoutWarn:"Nieznany układ: może nie działać",onGB:"Otwórz na GameBanana",done:"Zainstalowano:",files:"plików",search:"Szukaj w GameBanana…",hint:"Włączone łatki są dodawane do My Stuff po naciśnięciu Graj.",loading:"Wczytywanie…",by:"autor:"},
+    tr:{sectionNew:"GameBanana'daki yeniler",sectionInstalled:"Yüklü yamalar",patchesBtn:"Yamalar",patchesTitle:"Yamalar",patchesTag:"GameBanana'dan özel dokular ve modlar",patchesBackBtn:"← Ayarlar",patchesTabBrowse:"Gözat",patchesTabInstalled:"Yüklü",patchesSearchBtn:"Ara",patchesLoadMore:"Daha fazla yükle",patchesOpenFolder:"Klasörü aç",
+      install:"Yükle",installed:"Yüklendi",installing:"Yükleniyor…",none:"Hiçbir şey bulunamadı.",noneInstalled:"Henüz yama yüklenmedi. Bulmak için Gözat'ı kullanın.",remove:"Kaldır",removeAsk:"Bu yama kaldırılsın mı?",layoutWarn:"Bilinmeyen düzen: uygulanmayabilir",onGB:"GameBanana'da aç",done:"Yüklendi:",files:"dosya",search:"GameBanana'da ara…",hint:"Etkin yamalar Oyna'ya bastığınızda My Stuff'a eklenir.",loading:"Yükleniyor…",by:"yazan"},
+    ru:{sectionNew:"Новое на GameBanana",sectionInstalled:"Установленные патчи",patchesBtn:"Патчи",patchesTitle:"Патчи",patchesTag:"Свои текстуры и моды с GameBanana",patchesBackBtn:"← Настройки",patchesTabBrowse:"Обзор",patchesTabInstalled:"Установленные",patchesSearchBtn:"Поиск",patchesLoadMore:"Загрузить ещё",patchesOpenFolder:"Открыть папку",
+      install:"Установить",installed:"Установлено",installing:"Установка…",none:"Ничего не найдено.",noneInstalled:"Патчи ещё не установлены. Найдите их в разделе «Обзор».",remove:"Удалить",removeAsk:"Удалить этот патч?",layoutWarn:"Неизвестная структура: может не сработать",onGB:"Открыть на GameBanana",done:"Установлено:",files:"файлов",search:"Поиск на GameBanana…",hint:"Включённые патчи добавляются в My Stuff при нажатии «Играть».",loading:"Загрузка…",by:"автор"},
+    ja:{sectionNew:"GameBananaの新着",sectionInstalled:"インストール済みパッチ",patchesBtn:"パッチ",patchesTitle:"パッチ",patchesTag:"GameBananaのカスタムテクスチャとMod",patchesBackBtn:"← 設定",patchesTabBrowse:"探す",patchesTabInstalled:"インストール済み",patchesSearchBtn:"検索",patchesLoadMore:"さらに読み込む",patchesOpenFolder:"フォルダを開く",
+      install:"インストール",installed:"インストール済み",installing:"インストール中…",none:"見つかりませんでした。",noneInstalled:"パッチはまだありません。「探す」から見つけましょう。",remove:"削除",removeAsk:"このパッチを削除しますか？",layoutWarn:"不明な構成：適用されない場合があります",onGB:"GameBananaで開く",done:"インストールしました：",files:"ファイル",search:"GameBananaを検索…",hint:"有効なパッチは、プレイを押すとMy Stuffに追加されます。",loading:"読み込み中…",by:"作者"},
+    ko:{sectionNew:"GameBanana 최신",sectionInstalled:"설치된 패치",patchesBtn:"패치",patchesTitle:"패치",patchesTag:"GameBanana의 커스텀 텍스처와 모드",patchesBackBtn:"← 설정",patchesTabBrowse:"둘러보기",patchesTabInstalled:"설치됨",patchesSearchBtn:"검색",patchesLoadMore:"더 불러오기",patchesOpenFolder:"폴더 열기",
+      install:"설치",installed:"설치됨",installing:"설치 중…",none:"찾지 못했습니다.",noneInstalled:"설치된 패치가 없습니다. 둘러보기에서 찾아보세요.",remove:"제거",removeAsk:"이 패치를 제거할까요?",layoutWarn:"알 수 없는 구성: 적용되지 않을 수 있음",onGB:"GameBanana에서 열기",done:"설치됨:",files:"파일",search:"GameBanana 검색…",hint:"활성화된 패치는 플레이를 누르면 My Stuff에 추가됩니다.",loading:"불러오는 중…",by:"제작"},
+    zh:{sectionNew:"GameBanana 最新",sectionInstalled:"已安装的补丁",patchesBtn:"补丁",patchesTitle:"补丁",patchesTag:"来自 GameBanana 的自定义贴图和 Mod",patchesBackBtn:"← 设置",patchesTabBrowse:"浏览",patchesTabInstalled:"已安装",patchesSearchBtn:"搜索",patchesLoadMore:"加载更多",patchesOpenFolder:"打开文件夹",
+      install:"安装",installed:"已安装",installing:"正在安装…",none:"没有找到。",noneInstalled:"还没有安装补丁。去“浏览”里找找吧。",remove:"移除",removeAsk:"移除此补丁？",layoutWarn:"未知结构：可能不会生效",onGB:"在 GameBanana 打开",done:"已安装：",files:"个文件",search:"搜索 GameBanana…",hint:"启用的补丁会在你点击开始游戏时加入 My Stuff。",loading:"加载中…",by:"作者"},
+    ar:{sectionNew:"الأحدث على GameBanana",sectionInstalled:"التصحيحات المثبتة",patchesBtn:"التصحيحات",patchesTitle:"التصحيحات",patchesTag:"نسيج ومودات مخصصة من GameBanana",patchesBackBtn:"← الإعدادات",patchesTabBrowse:"تصفح",patchesTabInstalled:"المثبتة",patchesSearchBtn:"بحث",patchesLoadMore:"تحميل المزيد",patchesOpenFolder:"فتح المجلد",
+      install:"تثبيت",installed:"مثبت",installing:"جارٍ التثبيت…",none:"لم يتم العثور على شيء.",noneInstalled:"لا توجد تصحيحات مثبتة بعد. استخدم «تصفح» للعثور عليها.",remove:"إزالة",removeAsk:"إزالة هذا التصحيح؟",layoutWarn:"تخطيط غير معروف: قد لا يعمل",onGB:"فتح في GameBanana",done:"تم التثبيت:",files:"ملفات",search:"ابحث في GameBanana…",hint:"تُضاف التصحيحات المفعّلة إلى My Stuff عند الضغط على تشغيل.",loading:"جارٍ التحميل…",by:"بواسطة"},
+    sv:{sectionNew:"Nytt på GameBanana",sectionInstalled:"Installerade patchar",patchesBtn:"Patchar",patchesTitle:"Patchar",patchesTag:"Egna texturer och moddar från GameBanana",patchesBackBtn:"← Inställningar",patchesTabBrowse:"Bläddra",patchesTabInstalled:"Installerade",patchesSearchBtn:"Sök",patchesLoadMore:"Ladda fler",patchesOpenFolder:"Öppna mapp",
+      install:"Installera",installed:"Installerad",installing:"Installerar…",none:"Hittade inget.",noneInstalled:"Inga patchar installerade än. Använd Bläddra för att hitta några.",remove:"Ta bort",removeAsk:"Ta bort den här patchen?",layoutWarn:"Okänd struktur: kanske inte fungerar",onGB:"Öppna på GameBanana",done:"Installerad:",files:"filer",search:"Sök på GameBanana…",hint:"Aktiverade patchar läggs till i My Stuff när du trycker på Spela.",loading:"Laddar…",by:"av"},
+    fi:{sectionNew:"Uutta GameBananassa",sectionInstalled:"Asennetut paikat",patchesBtn:"Paikat",patchesTitle:"Paikat",patchesTag:"Omia tekstuureja ja modeja GameBananasta",patchesBackBtn:"← Asetukset",patchesTabBrowse:"Selaa",patchesTabInstalled:"Asennetut",patchesSearchBtn:"Hae",patchesLoadMore:"Lataa lisää",patchesOpenFolder:"Avaa kansio",
+      install:"Asenna",installed:"Asennettu",installing:"Asennetaan…",none:"Ei löytynyt mitään.",noneInstalled:"Paikkoja ei ole vielä asennettu. Löydät niitä Selaa-välilehdeltä.",remove:"Poista",removeAsk:"Poistetaanko tämä paikka?",layoutWarn:"Tuntematon rakenne: ei välttämättä toimi",onGB:"Avaa GameBananassa",done:"Asennettu:",files:"tiedostoa",search:"Hae GameBananasta…",hint:"Käyttöön otetut paikat lisätään My Stuffiin, kun painat Pelaa.",loading:"Ladataan…",by:"tekijä"}
+  };
+  const $ = id => document.getElementById(id);
+  const tt = k => ((PT[window._currentLang] || PT.en)[k]) || PT.en[k] || k;
+  const api = () => (window.pywebview && window.pywebview.api) || null;
+  let tab = 'browse', page = 1, query = '', busy = false, hasMore = false, installedKnown = new Set();
+
+  function applyPatchTexts(){
+    const t = PT[window._currentLang] || PT.en;
+    for(const k of Object.keys(PT.en)){ if(k.startsWith('patches')){ const el = $(k); if(el) el.textContent = t[k] || PT.en[k]; } }
+    $('patchesSearch').placeholder = tt('search');
+    $('patchesHint').textContent = tt('hint');
+    setSection();
+  }
+  // keep the texts right when the launcher language changes
+  const origApply = window.applyTranslations;
+  if(typeof origApply === 'function'){ window.applyTranslations = function(l){ origApply(l); applyPatchTexts(); }; }
+
+  function msg(text, spin){
+    const m = $('patchesMsg'); m.textContent = '';
+    if(spin){ const s = document.createElement('span'); s.className = 'pt-spin'; m.appendChild(s); }
+    m.appendChild(document.createTextNode(text || '')); m.style.display = text ? '' : 'none';
+  }
+  function thumb(url){
+    const d = document.createElement('div'); d.className = 'pt-thumb';
+    if(url){ const i = document.createElement('img'); i.loading = 'lazy'; i.referrerPolicy = 'no-referrer'; i.alt = ''; i.src = url; i.onerror = () => i.remove(); d.appendChild(i); }
+    return d;
+  }
+  function fmt(n){ n = +n || 0; return n >= 1000 ? (n/1000).toFixed(n >= 10000 ? 0 : 1) + 'k' : String(n); }
+  function openPage(url){ const a = api(); if(a && url) a.patches_open_page(url); }
+
+  function card(it){
+    const c = document.createElement('div'); c.className = 'pt-card';
+    c.appendChild(thumb(it.thumb));
+    const info = document.createElement('div'); info.className = 'pt-info';
+    const nm = document.createElement('button'); nm.type = 'button'; nm.className = 'pt-name'; nm.textContent = it.name; nm.title = it.name;
+    nm.addEventListener('click', () => openDetails(it)); info.appendChild(nm);
+    c.firstChild.addEventListener('click', () => openDetails(it));
+    const meta = document.createElement('div'); meta.className = 'pt-meta';
+    if(it.author){ const a = document.createElement('span'); a.textContent = tt('by') + ' ' + it.author; meta.appendChild(a); }
+    if(it.likes){ const l = document.createElement('span'); l.textContent = '♥ ' + fmt(it.likes); meta.appendChild(l); }
+    info.appendChild(meta);
+    const act = document.createElement('div'); act.className = 'pt-act';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-primary';
+    const done = it.installed || installedKnown.has(String(it.mod_id));
+    b.textContent = done ? tt('installed') : tt('install'); b.disabled = !!done;
+    b.addEventListener('click', () => installMod(it, b)); act.appendChild(b); info.appendChild(act);
+    c.appendChild(info); return c;
+  }
+
+  function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+  function closeDetails(){ $('ptModal').hidden = true; $('ptDlg').textContent = ''; }
+  async function openDetails(it){
+    const a = api(); if(!a) return;
+    const dlg = $('ptDlg'); dlg.textContent = ''; $('ptModal').hidden = false;
+    const top = el('div', 'pt-dtop'); const hd = el('div'); hd.appendChild(el('h3', '', it.name));
+    const sub = el('div', 'pt-dsub'); if(it.author) sub.appendChild(el('span', '', tt('by') + ' ' + it.author)); if(it.likes) sub.appendChild(el('span', '', '♥ ' + fmt(it.likes))); if(it.downloads) sub.appendChild(el('span', '', '⬇ ' + fmt(it.downloads))); if(it.views) sub.appendChild(el('span', '', '👁 ' + fmt(it.views)));
+    hd.appendChild(sub); top.appendChild(hd);
+    const x = el('button', 'btn btn-ghost', tt('close')); x.type = 'button'; x.addEventListener('click', closeDetails); top.appendChild(x); dlg.appendChild(top);
+    const big = el('div', 'pt-big'); dlg.appendChild(big); const strip = el('div', 'pt-strip'); dlg.appendChild(strip);
+    const dh = el('div', 'pt-h', tt('descTitle')); const desc = el('div', 'pt-desc', tt('loading')); dlg.appendChild(dh); dlg.appendChild(desc);
+    const act = el('div', 'pt-dact'); dlg.appendChild(act);
+    const b = el('button', 'btn btn-primary'); b.type = 'button'; const done = it.installed || installedKnown.has(String(it.mod_id));
+    b.textContent = done ? tt('installed') : tt('install'); b.disabled = !!done;
+    b.addEventListener('click', async () => { await installMod(it, b); }); act.appendChild(b);
+    if(it.url){ const g = el('button', 'btn btn-ghost', tt('onGB')); g.type = 'button'; g.addEventListener('click', () => openPage(it.url)); act.appendChild(g); }
+    big.textContent = tt('loading');
+    let r = null; try{ r = await a.patches_files(it.mod_id); }catch(e){ r = {ok:false}; }
+    if($('ptModal').hidden) return;
+    if(!r || !r.ok){ big.textContent = (r && r.error) || 'Error'; desc.textContent = ''; return; }
+    desc.textContent = r.description || tt('noDesc');
+    const imgs = r.images || []; big.textContent = '';
+    if(!imgs.length){ big.textContent = tt('noPics'); }
+    else {
+      const bi = document.createElement('img'); bi.referrerPolicy = 'no-referrer'; bi.alt = ''; big.appendChild(bi);
+      imgs.forEach((im, n) => { const t = document.createElement('img'); t.referrerPolicy = 'no-referrer'; t.alt = ''; t.src = im.small; t.addEventListener('click', () => { bi.src = im.full; strip.querySelectorAll('img').forEach(z => z.classList.remove('on')); t.classList.add('on'); }); strip.appendChild(t); if(n === 0){ bi.src = im.full; t.classList.add('on'); } });
+      if(imgs.length < 2) strip.hidden = true;
+    }
+  }
+  $('ptModal').addEventListener('click', e => { if(e.target === $('ptModal')) closeDetails(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && !$('ptModal').hidden) closeDetails(); });
+
+  async function installMod(it, btn){
+    const a = api(); if(!a || btn.disabled) return;
+    btn.disabled = true; btn.textContent = ''; const s = document.createElement('span'); s.className = 'pt-spin'; btn.appendChild(s); btn.appendChild(document.createTextNode(tt('installing')));
+    let r = null; try{ r = await a.patches_install(it.mod_id); }catch(e){ r = {ok:false, error:String(e)}; }
+    if(r && r.ok){ installedKnown.add(String(it.mod_id)); btn.textContent = tt('installed'); toast(tt('done') + ' ' + (r.patch && r.patch.name || it.name)); }
+    else { btn.disabled = false; btn.textContent = tt('install'); toast((r && r.error) || 'Error', true); }
+  }
+
+  async function loadBrowse(reset){
+    const a = api(); if(!a || busy) return; busy = true;
+    if(reset){ page = 1; $('patchesGrid').textContent = ''; }
+    $('patchesMoreBtn').hidden = true; msg(tt('loading'), true);
+    let r = null; try{ r = await a.patches_search(query, page); }catch(e){ r = {ok:false, error:String(e)}; }
+    busy = false;
+    if(!r || !r.ok){ msg((r && r.error) || 'Error'); return; }
+    const g = $('patchesGrid'); r.items.forEach(it => g.appendChild(card(it)));
+    msg(g.children.length ? '' : tt('none'));
+    page = (r.page || page) + 1; hasMore = !!r.has_more; $('patchesMoreBtn').hidden = !hasMore;
+  }
+
+  async function loadInstalled(){
+    const a = api(); if(!a) return; const L = $('patchesList'); L.textContent = ''; msg(tt('loading'), true);
+    let r = null; try{ r = await a.patches_installed(); }catch(e){ r = {ok:false, items:[]}; }
+    const items = (r && r.items) || []; installedKnown = new Set(items.map(p => String(p.mod_id)));
+    msg(items.length ? '' : tt('noneInstalled'));
+    items.forEach(p => {
+      const row = document.createElement('div'); row.className = 'pt-row';
+      row.appendChild(thumb(p.thumb));
+      const info = document.createElement('div'); info.className = 'pt-info';
+      const nm = document.createElement('button'); nm.type = 'button'; nm.className = 'pt-name'; nm.textContent = p.name || p.folder; nm.title = tt('onGB'); nm.addEventListener('click', () => openPage(p.url)); info.appendChild(nm);
+      const meta = document.createElement('div'); meta.className = 'pt-meta';
+      const bits = []; if(p.author) bits.push(tt('by') + ' ' + p.author); if(p.files) bits.push(p.files + ' ' + tt('files'));
+      bits.forEach(x => { const sp = document.createElement('span'); sp.textContent = x; meta.appendChild(sp); }); info.appendChild(meta);
+      if(p.layout && p.layout !== 'game'){ const w = document.createElement('div'); w.className = 'pt-warn'; w.textContent = '⚠ ' + tt('layoutWarn'); info.appendChild(w); }
+      row.appendChild(info);
+      const sw = document.createElement('label'); sw.className = 'pt-switch'; const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = p.enabled !== false; const i = document.createElement('i');
+      cb.addEventListener('change', async () => { const r2 = await a.patches_set_enabled(p.folder, cb.checked); if(!r2 || !r2.ok){ cb.checked = !cb.checked; toast((r2 && r2.error) || 'Error', true); } });
+      sw.appendChild(cb); sw.appendChild(i); row.appendChild(sw);
+      const del = document.createElement('button'); del.type = 'button'; del.className = 'pt-del'; del.textContent = tt('remove');
+      del.addEventListener('click', async () => { if(!confirm(tt('removeAsk') + '\n' + (p.name || p.folder))) return; const r3 = await a.patches_remove(p.folder); if(r3 && r3.ok) loadInstalled(); else toast((r3 && r3.error) || 'Error', true); });
+      row.appendChild(del); L.appendChild(row);
+    });
+  }
+
+  function setSection(){
+    $('patchesSection').textContent = tab === 'installed' ? tt('sectionInstalled') : (query ? '\u201c' + query + '\u201d' : tt('sectionNew'));
+  }
+
+  function setTab(t){
+    tab = t; document.querySelectorAll('#patchesTabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+    const br = t === 'browse'; $('patchesGrid').hidden = !br; $('patchesList').hidden = br; $('patchesSearchForm').style.display = br ? '' : 'none';
+    $('patchesMoreBtn').hidden = true; msg(''); setSection();
+    if(br){ if(!$('patchesGrid').children.length) loadBrowse(true); else $('patchesMoreBtn').hidden = !hasMore; } else loadInstalled();
+  }
+
+  function openPatches(){
+    go('patches'); document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('active', b.dataset.target === 'settings'));
+    applyPatchTexts(); setTab(tab);
+  }
+
+  $('openPatchesBtn').addEventListener('click', openPatches);
+  $('patchesBackBtn').addEventListener('click', () => go('settings'));
+  document.querySelectorAll('#patchesTabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  $('patchesSearchForm').addEventListener('submit', e => { e.preventDefault(); query = $('patchesSearch').value.trim(); setSection(); loadBrowse(true); });
+  $('patchesMoreBtn').addEventListener('click', () => loadBrowse(false));
+  $('patchesFolderBtn').addEventListener('click', async () => { const a = api(); if(a){ const r = await a.patches_open_folder(); if(r && r.error) toast(r.error, true); } });
+  applyPatchTexts();
+})();
+</script>
