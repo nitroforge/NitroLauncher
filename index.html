@@ -39,36 +39,29 @@
   }
   ::selection{ background:rgba(255,140,0,0.35); }
 
-  .titlebar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:12px 26px;
-    border-bottom:1px solid var(--border);
-    background:var(--bg);
-    position:sticky;
-    top:0;
-    z-index:20;
+  /* App shell: fixed sidebar + content, like Steam / Modrinth / Prism */
+  body{ display:grid; grid-template-columns:208px minmax(0,1fr); grid-template-rows:minmax(0,1fr); }
+  .side{
+    display:flex; flex-direction:column; gap:26px; padding:22px 14px 16px;
+    background:var(--bg-2); border-right:1px solid var(--border); min-height:0;
   }
-  .brand{ display:flex; align-items:center; gap:10px; }
-  .brand-mark{
-    width:30px; height:30px; border-radius:8px;
-    object-fit:contain; display:block;
-  }
-  .brand-text{ font-family:var(--display); font-weight:700; font-size:19px; letter-spacing:1.2px; }
-  .brand-text span{ color:var(--blue); }
-  .ver-pill{
-    font-family:var(--mono); font-size:10.5px; color:var(--text-dim);
-    border:1px solid var(--border); border-radius:20px; padding:3px 9px; margin-left:8px;
-  }
-  nav.tabs{ display:flex; gap:26px; align-self:stretch; }
+  .brand{ display:flex; align-items:center; gap:11px; padding:0 8px; }
+  .brand-mark{ width:44px; height:44px; object-fit:contain; display:block; flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1; font-family:var(--display); font-weight:700; }
+  .brand-text small{ font-size:11px; letter-spacing:2.2px; color:var(--text-dim); font-weight:600; }
+  .brand-text span{ font-size:26px; letter-spacing:1.5px; color:var(--blue); margin-top:3px; }
+  nav.tabs{ display:flex; flex-direction:column; gap:2px; }
   nav.tabs button{
-    all:unset; cursor:pointer; font-family:var(--body); font-weight:500; font-size:13px;
-    color:var(--text-dim); padding:12px 2px 10px; border-bottom:2px solid transparent; margin-bottom:-13px; transition:color .12s, border-color .12s;
+    all:unset; box-sizing:border-box; cursor:pointer; display:flex; align-items:center; gap:12px; width:100%;
+    font-family:var(--body); font-weight:500; font-size:14px; color:var(--text-dim);
+    padding:10px 12px; border-radius:8px; transition:background-color .12s, color .12s;
   }
-  nav.tabs button:hover{ color:var(--text); }
-  nav.tabs button.active{ color:var(--text); border-bottom-color:var(--blue); }
-
+  nav.tabs button:hover{ background:rgba(255,255,255,0.04); color:var(--text); }
+  nav.tabs button.active{ background:var(--panel-hover); color:var(--text); box-shadow:inset 3px 0 0 var(--blue); }
+  nav.tabs button.active .nav-ic{ color:var(--blue); }
+  .nav-ic{ width:18px; height:18px; flex:none; }
+  .side-foot{ margin-top:auto; padding:0 8px; }
+  .ver-pill{ font-family:var(--mono); font-size:11px; color:var(--text-faint); }
   main{ flex:1; padding:40px 26px 60px; max-width:1180px; margin:0 auto; width:100%; }
   .screen{ display:none; animation:rise .35s ease; }
   .screen.active{ display:block; }
@@ -504,6 +497,30 @@
   .mii-symgrid button:hover{border-color:rgba(255,140,0,.8)}
   .mii-symgrid img{max-width:32px;max-height:32px;pointer-events:none}
   .mii-slot .name img.mii-nsym{height:1.25em;width:auto;vertical-align:-0.25em;margin:0 1px}
+
+  /* ---- content area ---- */
+  main{ grid-column:2; min-width:0; padding:26px 32px 24px; max-width:none; margin:0; }
+  footer{ display:none; }
+  #settings .back, #mii .back{ display:none; }
+  .sub-head{ margin-bottom:18px; }
+  .sub-head h2{ font-size:28px; }
+  #home .hero{ border:0; border-radius:12px; margin-bottom:14px; }
+  #home .hero-banner img{ object-fit:cover; object-position:center 40%; }
+  #home .hero-overlay{ padding:0 32px 30px; gap:14px; }
+  #home .hero-actions .btn-primary{ padding:15px 44px; font-size:16px; border-radius:10px; }
+  #home .grid-4 .stat{ padding:14px 18px; }
+  #home .stat .val{ font-size:15px; }
+  #home .stat .val:not(.dim)::before{ content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:#3ddc84; margin-right:9px; vertical-align:2px; }
+  #home .stat:last-child .val::before{ display:none; }
+  body{ grid-template-columns:196px minmax(0,1fr); }
+  main{ padding:24px 28px 22px; }
+  .set-grid{ gap:0 40px; }
+  #settings .field, .toggle{ grid-template-columns:minmax(110px,34%) 1fr; }
+  #mii .mii-shell{ grid-template-columns:210px minmax(0,1fr); gap:24px; }
+  #mii .mii-main{ grid-template-columns:minmax(0,1fr) 300px; gap:24px; }
+  #mii .mii-toolbar{ gap:6px; }
+  #mii .mii-toolbar .btn{ padding:11px 6px; }
+  #home .stat .val{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 </style>
 </head>
 <body>
@@ -526,13 +543,17 @@
     </div>
   </div>
 </div>
-<div class="titlebar">
+<aside class="side">
 <div class="brand"><img class="brand-mark" id="brandLogo" src="logo.png" alt="Mario Kart Nitro" />
-<div class="brand-text">MARIO KART <span>NITRO</span></div>
-<div class="ver-pill" id="verPill">v1.0.1</div>
+<div class="brand-text"><small>MARIO KART</small><span>NITRO</span></div>
 </div>
-<nav class="tabs" id="tabs"><button data-target="home" class="active" id="navHome">Home</button> <button data-target="mii" id="navMii">Mii</button> <button data-target="settings" id="navSettings">Settings</button></nav>
-</div>
+<nav class="tabs" id="tabs">
+<button data-target="home" class="active"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span id="navHome">Home</span></button>
+<button data-target="mii"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span id="navMii">Mii</span></button>
+<button data-target="settings"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span id="navSettings">Settings</span></button>
+</nav>
+<div class="side-foot"><div class="ver-pill" id="verPill">v1.0.1</div></div>
+</aside>
 <main>
 <section class="screen active" id="home">
 <div class="hero">
